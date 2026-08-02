@@ -12,6 +12,7 @@ Instead of stitching together PostgreSQL, Redis, Elasticsearch, Kafka, and Pinec
 
 ## 📚 Guides & Documentation
 
+- 🍃 **[Spring Boot & JPA Integration Guide](./DOCUMENTATION.md#4-spring-boot--jpa-integration-guide)**: Connect via `@Entity`, `@Repository`, and `@Transactional`.
 - 🎓 **[Step-by-Step Interactive Tutorial](./TUTORIAL.md)**: Hands-on guide from zero to running AI vector queries.
 - 📖 **[Complete Technical Documentation](./DOCUMENTATION.md)**: Full Query & Architecture Reference Guide.
 - ☁️ **[AWS EC2 & Cloud Deployment Guide](./deploy/aws_ec2_install.sh)**: Enterprise production installation script.
@@ -48,44 +49,18 @@ curl -fsSL https://raw.githubusercontent.com/upendra-manike/CogniDB/main/deploy/
 
 ---
 
-## 💻 SQL Query Syntax & Examples
+## 🍃 Spring Boot & Spring Data JPA Example
 
-### 1. Create Table with Vector Column
-```sql
-CREATE TABLE products (
-  id VARCHAR PRIMARY KEY, 
-  name VARCHAR, 
-  category VARCHAR, 
-  price FLOAT, 
-  description VARCHAR, 
-  embedding FLOAT_VECTOR(128)
-);
-```
+```java
+@Repository
+public interface ProductRepository extends JpaRepository<Product, String> {
 
-### 2. Insert Record with Automatic Vector Embedding
-```sql
-INSERT INTO products VALUES (
-  'prod_101', 
-  'MacBook Pro M3', 
-  'Electronics', 
-  1999.99, 
-  'High performance Apple Silicon laptop for software engineering and AI.', 
-  AI_EMBED('MacBook Pro M3 Apple Silicon software engineering laptop')
-);
-```
-
-### 3. Hybrid SQL + Semantic Vector Similarity Query
-```sql
-SELECT id, name, price, description 
-FROM products 
-WHERE category = 'Electronics' AND price < 2500 
-  AND embedding SIMILAR TO 'laptop for software engineering' 
-TOP 5;
-```
-
-### 4. Native AI RAG (Retrieval-Augmented Generation) Query
-```sql
-SELECT AI_RAG('Summarize key developer laptops under $2000');
+    // Native CogniDB Vector Search inside Spring Data Repository!
+    @Query(value = "SELECT * FROM products WHERE category = :cat AND embedding SIMILAR TO :term TOP :limit", nativeQuery = true)
+    List<Product> searchByVectorSimilarity(@Param("cat") String category, 
+                                           @Param("term") String searchTerm, 
+                                           @Param("limit") int limit);
+}
 ```
 
 ---
