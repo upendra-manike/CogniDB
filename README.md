@@ -16,6 +16,8 @@ Instead of stitching together PostgreSQL, Redis, Elasticsearch, Kafka, and Pinec
 ## 📚 Guides, Documentation & Multi-Language Examples
 
 - 💻 **[Multi-Language Code Examples Repository](https://github.com/upendra-manike/CogniDB_Examples)**: Dedicated repo for **Spring Boot JPA, Python, Node.js, Go, C#, Rust, and cURL**.
+- 🐍 **[Python Client (`pip install cognidb-client`)](https://pypi.org/project/cognidb-client/)**: Official PyPI Package.
+- 💚 **[Node.js Client (`npm install cognidb-client`)](https://www.npmjs.com/package/cognidb-client)**: Official npm Registry Package.
 - 🍃 **[Spring Boot & JPA Integration Example](https://github.com/upendra-manike/CogniDB_Examples/tree/main/springboot-jpa)**: Connect via `@Entity`, `@Repository`, and `@Transactional`.
 - 🐍 **[Python Integration Example](https://github.com/upendra-manike/CogniDB_Examples/tree/main/python)**: Connect via REST API using Python `requests`.
 - 💚 **[Node.js Integration Example](https://github.com/upendra-manike/CogniDB_Examples/tree/main/nodejs)**: Connect via JavaScript async fetch.
