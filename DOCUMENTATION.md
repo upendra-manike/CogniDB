@@ -8,11 +8,12 @@ Welcome to the official technical documentation for **CogniDB**, the next-genera
 
 1. [Architectural Principles & Engines](#1-architectural-principles--engines)
 2. [Connection String & Security](#2-connection-string--security)
-3. [Complete SQL & AI Query Reference](#3-complete-sql--ai-query-reference)
-4. [Backend Language SDK Integration (Python, Java, Go, Node.js, C#)](#4-backend-language-sdk-integration)
-5. [Storage Engine & Recovery Mechanics](#5-storage-engine--recovery-mechanics)
-6. [Distributed Consensus & Anti-Entropy](#6-distributed-consensus--anti-entropy)
-7. [Cloud Deployment & Configuration Reference](#7-cloud-deployment--configuration-reference)
+3. [ACID Transaction Management](#3-acid-transaction-management)
+4. [Complete SQL & AI Query Reference](#4-complete-sql--ai-query-reference)
+5. [Backend Language SDK Integration (Python, Java, Go, Node.js, C#)](#5-backend-language-sdk-integration)
+6. [Storage Engine & Recovery Mechanics](#6-storage-engine--recovery-mechanics)
+7. [Distributed Consensus & Anti-Entropy](#7-distributed-consensus--anti-entropy)
+8. [Cloud Deployment & Configuration Reference](#8-cloud-deployment--configuration-reference)
 
 ---
 
@@ -42,7 +43,57 @@ cognidb://<username>:<password>@<host>:<port>/<database>
 
 ---
 
-## 3. Complete SQL & AI Query Reference
+## 3. ACID Transaction Management
+
+CogniDB provides full **ACID (Atomicity, Consistency, Isolation, Durability)** transactions managed by `com.cognidb.engine.txn.TransactionManager`:
+
+```
+┌────────────────────────────────────────────────────────────────────────┐
+│                        Transaction Lifecycle                          │
+│                                                                        │
+│   BEGIN TRANSACTION   ──►   Staged Uncommitted Writes                  │
+│                                    │                                   │
+│                        ┌───────────┴───────────┐                       │
+│                        ▼                       ▼                       │
+│               Conflict Detected?       No Conflict & WAL Flush         │
+│                        │                       │                       │
+│                        ▼                       ▼                       │
+│                 ROLLBACK / ABORT            COMMIT                     │
+└────────────────────────────────────────────────────────────────────────┘
+```
+
+### 🛡️ ACID Guarantees:
+* **Atomicity**: Either all operations in a transaction succeed, or `ROLLBACK` reverts all staged modifications.
+* **Consistency**: All updates enforce primary key constraints, field types, and 128-dimensional vector sizes.
+* **Isolation (Snapshot Isolation / OCC)**: Uses Optimistic Concurrency Control with logical timestamp ordering. If two concurrent transactions attempt to modify the same row, the second transaction detects a **Write-Write Conflict** and automatically aborts to prevent data loss.
+* **Durability**: Committed data is synchronously written to the sequential **WAL (Write-Ahead Log)** on disk before the `COMMIT` call completes.
+
+### 💻 SQL Transaction Examples:
+
+```sql
+-- 1. Start Transaction
+BEGIN TRANSACTION;
+
+-- 2. Stage Updates & Vector Embeddings
+INSERT INTO products VALUES (
+  'prod_201', 'Logitech MX Master 3S', 'Peripherals', 99.99, 'Ergonomic wireless mouse for coding', AI_EMBED('wireless ergonomic mouse')
+);
+
+UPDATE products SET price = 89.99 WHERE id = 'prod_201';
+
+-- 3. Commit All Writes Atomically
+COMMIT;
+```
+
+If an error occurs or conflict is detected:
+```sql
+-- Abort & Rollback staged modifications
+ROLLBACK;
+```
+
+---
+
+## 4. Complete SQL & AI Query Reference
 
 ### 🔹 DDL Statements (Data Definition Language)
 ```sql
@@ -81,14 +132,14 @@ TOP 5;
 
 ---
 
-## 4. Backend Language SDK Integration
+## 5. Backend Language SDK Integration
 
 ### 🐍 Python
 ```python
 import requests
 
 API_URL = "http://localhost:8080/api/sql"
-payload = {"sql": "SELECT id, name FROM users WHERE embedding SIMILAR TO 'AI Architect' TOP 3"}
+payload = {"sql": "BEGIN; INSERT INTO products VALUES (...); COMMIT;"}
 response = requests.post(API_URL, json=payload)
 print(response.json())
 ```
@@ -105,46 +156,11 @@ HttpRequest req = HttpRequest.newBuilder()
 System.out.println(client.send(req, HttpResponse.BodyHandlers.ofString()).body());
 ```
 
-### 🐹 Go (`net/http`)
-```go
-req, _ := http.NewRequest("POST", "http://localhost:8080/api/sql", bytes.NewBuffer([]byte(`{"sql":"SELECT * FROM users"}`)))
-req.Header.Set("Content-Type", "application/json")
-resp, _ := (&http.Client{}).Do(req)
-body, _ := io.ReadAll(resp.Body)
-fmt.Println(string(body))
-```
-
-### 🟢 Node.js (`fetch`)
-```javascript
-const res = await fetch("http://localhost:8080/api/sql", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ sql: "SELECT * FROM users LIMIT 5" })
-});
-console.log(await res.json());
-```
-
-### 🔷 C# (.NET)
-```csharp
-using var client = new HttpClient();
-var content = new StringContent("{\"sql\":\"SELECT * FROM users LIMIT 5\"}", Encoding.UTF8, "application/json");
-var response = await client.PostAsync("http://localhost:8080/api/sql", content);
-Console.WriteLine(await response.Content.ReadAsStringAsync());
-```
-
 ---
 
-## 5. Storage Engine & Recovery Mechanics
+## 6. Storage Engine & Recovery Mechanics
 
 CogniDB uses a Log-Structured Merge-Tree (LSM-Tree) engine for data persistence:
 
 1. **Write Path**: Appended to sequential **WAL** -> Inserted into **MemTable** -> Flushed to immutable **SSTables**.
 2. **Read Path**: Check **Hot LRFU Cache** -> Check **MemTable** -> Check **Bloom Filter** -> Binary Search **SSTable**.
-
----
-
-## 6. Distributed Consensus & Anti-Entropy
-
-* **Raft Consensus**: Leader election and log replication across multi-node clusters.
-* **Read Repair**: Real-time synchronization of stale replicas on reads.
-* **Merkle Tree Sync**: Cryptographic range tree comparisons detect and repair missing records in background.
