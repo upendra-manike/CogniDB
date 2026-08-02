@@ -246,24 +246,20 @@ print(results)
 
 ---
 
-### 💚 Node.js / JavaScript
-```javascript
-const COGNIDB_URL = 'http://localhost:8080/api/sql';
+### 💚 Node.js / JavaScript (`npm install cognidb-client`)
 
-async function queryCogniDB(sql) {
-    const response = await fetch(COGNIDB_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sql })
-    });
-    return await response.json();
-}
+```bash
+npm install cognidb-client
+```
+
+```javascript
+const { CogniDBClient } = require('cognidb-client');
+
+const client = new CogniDBClient({ host: 'http://localhost:8080' });
 
 // Perform Vector Search
-queryCogniDB(`
-    SELECT id, name, region, latency_ms FROM node_services 
-    WHERE region = 'us-east-1' AND embedding SIMILAR TO 'authentication microservice' TOP 1;
-`).then(console.log);
+client.vectorSearch('node_services', 'authentication microservice', 1, "region = 'us-east-1'")
+    .then(console.log);
 ```
 
 ---

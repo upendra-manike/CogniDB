@@ -1,5 +1,5 @@
 {
-  "name": "cognidb",
+  "name": "cognidb-client",
   "version": "1.0.0",
   "description": "Official Node.js SDK for CogniDB AI-Native Unified Database Engine",
   "main": "index.js",
