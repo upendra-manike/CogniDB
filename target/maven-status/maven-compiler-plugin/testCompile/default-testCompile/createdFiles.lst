@@ -1,0 +1,12 @@
+com/cognidb/InvertedIndexTest.class
+com/cognidb/SQLQueryTest.class
+com/cognidb/engine/StorageEngineTest.class
+com/cognidb/SQLParserTest.class
+com/cognidb/ClusterStateTest.class
+com/cognidb/StreamEngineTest.class
+com/cognidb/VectorIndexTest.class
+com/cognidb/MemoryCacheEngineTest.class
+com/cognidb/LSMTreeTest.class
+com/cognidb/ProductFeatureTest.class
+com/cognidb/AntiEntropyTest.class
+com/cognidb/SecurityAndRecoveryTest.class
