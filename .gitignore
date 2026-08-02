@@ -3,9 +3,8 @@
 !DOCUMENTATION.md
 !TUTORIAL.md
 !DEMO_VIDEO_GUIDE.md
-!narration_best.txt
-!narration_35s.txt
-!narration_full.txt
+!generate_studio_narration_tab_by_tab.py
+!build_tab_by_tab_video.py
 
 # Maven build outputs
 target/
