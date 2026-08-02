@@ -10,42 +10,11 @@ Instead of stitching together PostgreSQL, Redis, Elasticsearch, Kafka, and Pinec
 
 ---
 
-## 📐 Unified Engine Architecture
+## 📚 Guides & Documentation
 
-```
-                                  Client Request (REST / SQL / CLI)
-                                                  │
-                                                  ▼
-                                       Unified SQL & AI Parser
-                                                  │
-                                                  ▼
-                                     Cost-Based Optimizer (CBO)
-                 ┌────────────────────────────────┼────────────────────────────────┐
-                 │                                │                                │
-                 ▼                                ▼                                ▼
-       HNSW Vector Index               LSM Storage Engine               Inverted BM25 Index
-    (High-Dim ANN Search)            (WAL + MemTable + SSTable)       (Full-Text Keyword Search)
-                 │                                │                                │
-                 └────────────────────────────────┼────────────────────────────────┘
-                                                  ▼
-                                       In-Memory LRFU Cache
-                                                  │
-                                                  ▼
-                                     Distributed Raft Replication
-```
-
----
-
-## 🌟 Key Capabilities
-
-- 🧠 **Sub-Millisecond Vector Search (HNSW)**: Hierarchical Navigable Small World graph index for high-dimensional vector search with Cosine, Euclidean, and Dot-Product metrics.
-- 🗄️ **LSM-Tree Storage Engine**: Sequential Write-Ahead Logging (WAL) + ConcurrentSkipList MemTable + Immutable SSTables with Bloom Filters & Sparse Index.
-- 📑 **BM25 Full-Text Inverted Index**: Tokenization, term-frequency scoring, and rapid keyword search.
-- ⚡ **In-Memory Hot LRFU Cache**: Zero-latency retrieval for hot rows and query results.
-- 📡 **Real-Time Stream Engine**: Topic-based messaging and event streams built into database tables.
-- 🤖 **Native AI SQL Functions**: Execute `AI_EMBED(text)`, `AI_RAG(prompt)`, `AI_SUMMARIZE(text)`, `AI_CLASSIFY(text, labels)` directly inside SQL statements.
-- 🔒 **Enterprise Security & DLP**: Automated PII masking (SSNs, Credit Cards, Emails), Token Bucket firewall rate limiting, and RBAC authentication.
-- 📸 **Disaster Recovery**: Atomic Point-in-Time snapshot backups and instant restoration.
+- 🎓 **[Step-by-Step Interactive Tutorial](./TUTORIAL.md)**: Hands-on guide from zero to running AI vector queries.
+- 📖 **[Complete Technical Documentation](./DOCUMENTATION.md)**: Full Query & Architecture Reference Guide.
+- ☁️ **[AWS EC2 & Cloud Deployment Guide](./deploy/aws_ec2_install.sh)**: Enterprise production installation script.
 
 ---
 
@@ -118,49 +87,6 @@ TOP 5;
 ```sql
 SELECT AI_RAG('Summarize key developer laptops under $2000');
 ```
-
-### 5. AI Text Summarization & Sentiment Classification
-```sql
-SELECT name, 
-       AI_SUMMARIZE(description) AS summary, 
-       AI_CLASSIFY(description, 'Hardware', 'Software', 'Service') AS category 
-FROM products;
-```
-
-### 6. BM25 Full-Text Keyword Search Query
-```sql
-SELECT id, name, description 
-FROM products 
-WHERE MATCH(description, 'Apple Silicon software performance');
-```
-
----
-
-## 📡 REST API & Client Connection Code
-
-### 🐍 Python SDK Connection Example
-```python
-import requests
-
-API_URL = "http://localhost:8080/api/sql"
-HEADERS = {"Authorization": "Bearer cogni_master_key_99", "Content-Type": "application/json"}
-
-# Execute Hybrid Query
-payload = {
-    "sql": "SELECT id, name FROM products WHERE embedding SIMILAR TO 'high resolution monitor' TOP 3"
-}
-
-response = requests.post(API_URL, json=payload, headers=HEADERS)
-print(response.json())
-```
-
----
-
-## 🛠️ Complete Documentation & Guides
-
-For detailed architecture specs, disaster recovery guides, and configuration references:
-- 📖 **[DOCUMENTATION.md](./DOCUMENTATION.md)**: Full Query & Architecture Reference Guide.
-- ☁️ **[AWS EC2 & Cloud Deployment Guide](./deploy/aws_ec2_install.sh)**: Enterprise production installation script.
 
 ---
 

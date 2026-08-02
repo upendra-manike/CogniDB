@@ -1,6 +1,7 @@
 # Unignore repository docs
 !README.md
 !DOCUMENTATION.md
+!TUTORIAL.md
 
 # Maven build outputs
 target/
