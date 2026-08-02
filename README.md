@@ -23,6 +23,8 @@ Instead of stitching together PostgreSQL, Redis, Elasticsearch, Kafka, and Pinec
 - 💜 **[C# / .NET 8 Integration Example](https://github.com/upendra-manike/CogniDB_Examples/tree/main/csharp)**: Connect via C# `HttpClient`.
 - 🦀 **[Rust Integration Example](https://github.com/upendra-manike/CogniDB_Examples/tree/main/rust)**: Connect via Rust `tokio` and `reqwest`.
 - 🤖 **[AI Agent Specification File (`llms.txt`)](./llms.txt)**: Standard machine-readable AI context file for LLMs & AI coding assistants.
+- 🌟 **[Awesome Lists Submission Kit](./AWESOME_LISTS_SUBMISSION_KIT.md)**: PR templates for `awesome-java`, `awesome-vector-search`, and `awesome-database`.
+- 🏷️ **[GitHub Metadata & AI SEO Guide](./GITHUB_REPOS_METADATA.md)**: Topic tags and SEO metadata optimization.
 - 🎬 **[Official YouTube Video Walkthrough](https://www.youtube.com/watch?v=8xxpJwloe30)**: Watch the full feature demo.
 - 🎓 **[Step-by-Step Interactive Tutorial](./TUTORIAL.md)**: Hands-on guide from zero to running AI vector queries.
 - 📖 **[Complete Technical Documentation](./DOCUMENTATION.md)**: Full Query & Architecture Reference Guide.

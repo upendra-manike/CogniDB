@@ -1,0 +1,24 @@
+{
+  "name": "cognidb",
+  "version": "1.0.0",
+  "description": "Official Node.js SDK for CogniDB AI-Native Unified Database Engine",
+  "main": "index.js",
+  "scripts": {
+    "test": "node -e \"const { CogniDBClient } = require('./index'); console.log(new CogniDBClient());\""
+  },
+  "keywords": [
+    "cognidb",
+    "database",
+    "vector-search",
+    "hnsw",
+    "ai-native",
+    "rag",
+    "sql"
+  ],
+  "author": "Upendra Manike <upendra@cognidb.io>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/upendra-manike/CogniDB.git"
+  }
+}
