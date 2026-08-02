@@ -1,0 +1,13 @@
+Welcome to CogniDB, the next-generation AI-native unified database engine.
+
+Instead of stitching together PostgreSQL, Pinecone, Redis, and Kafka, CogniDB combines relational SQL, sub-millisecond HNSW vector search, in-memory caching, and real-time streaming into one unified engine.
+
+In the CogniDB Web Studio console, developers can run standard SQL queries alongside high-dimensional vector similarity searches using intuitive SQL extensions.
+
+With the 2D Vector Explorer, you can visually map embeddings, locate nearest neighbors, and explore high-dimensional semantic spaces interactively.
+
+CogniDB also features native AI RAG and text processing functions directly inside SQL, synthesizing context-aware answers in real-time.
+
+And with the IOPS Benchmark Suite, CogniDB delivers sub-millisecond query latency and high-throughput write performance.
+
+Star CogniDB on GitHub today!

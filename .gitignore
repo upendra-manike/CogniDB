@@ -1,7 +1,9 @@
-# Unignore repository docs
+# Unignore repository docs & demo materials
 !README.md
 !DOCUMENTATION.md
 !TUTORIAL.md
+!DEMO_VIDEO_GUIDE.md
+!narration_full.txt
 
 # Maven build outputs
 target/
