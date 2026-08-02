@@ -1,42 +1,30 @@
-# 🎬 CogniDB Visual Demo & Voice-Over Script
+# 🎬 CogniDB Visual HD Demo Video & Voice-Over Narration
 
-We have generated a **complete visual demo video with audio voice-over explanation** showcasing CogniDB Web Studio in action!
-
----
-
-## 🎥 Video File Location
-
-- **MP4 Video File**: `cognidb_demo_with_voiceover.mp4`
-- **Audio Voice-Over Track**: `voiceover_full.m4a`
-- **Voice-Over Text Script**: `narration_full.txt`
+We have generated a **Full HD (1920x1080) 35-Second Demo Video with Synchronized Audio Voice-Over** showcasing CogniDB Web Studio in action!
 
 ---
 
-## 🎙️ Timed Voice-Over Narration Script
+## 🎥 Video & Audio File Locations
 
-```text
-[00:00 - 00:05]
-"Welcome to CogniDB, the next-generation AI-native unified database engine."
-
-[00:05 - 00:12]
-"Instead of stitching together PostgreSQL, Pinecone, Redis, and Kafka, CogniDB combines relational SQL, sub-millisecond HNSW vector search, in-memory caching, and real-time streaming into one unified engine."
-
-[00:12 - 00:18]
-"In the CogniDB Web Studio console, developers can run standard SQL queries alongside high-dimensional vector similarity searches using intuitive SQL extensions."
-
-[00:18 - 00:24]
-"With the 2D Vector Explorer, you can visually map embeddings, locate nearest neighbors, and explore high-dimensional semantic spaces interactively."
-
-[00:24 - 00:30]
-"CogniDB also features native AI RAG and text processing functions directly inside SQL, synthesizing context-aware answers in real-time."
-
-[00:30 - 00:35]
-"And with the IOPS Benchmark Suite, CogniDB delivers sub-millisecond query latency and high-throughput write performance. Star CogniDB on GitHub today!"
-```
+- **Full HD 1080p Video**: `cognidb_studio_hd_demo.mp4`
+- **Audio Voice-Over File**: `voiceover_35s.m4a`
+- **Voice-Over Text Script**: `narration_35s.txt`
 
 ---
 
-## 📲 How to Use This Video
+## 📸 Timed Visual & Voice-Over Breakdown
 
-1. **LinkedIn / Twitter / YouTube**: Upload `cognidb_demo_with_voiceover.mp4` directly as your demo video.
-2. **Custom Voice-Over**: If you want to record your own voice, use `narration_full.txt` while playing the video back!
+| Time Window | CogniDB Web Studio View | Voice-Over Narration |
+| :--- | :--- | :--- |
+| **00:00 - 00:07** | **Dashboard Overview** | *"Welcome to CogniDB, the next-generation AI-native unified database engine. Instead of stitching together PostgreSQL, Pinecone, Redis, and Kafka, CogniDB unifies relational SQL, sub-millisecond HNSW vector search, in-memory caching, and streaming into a single Java 21 engine."* |
+| **00:07 - 00:14** | **SQL & AI Query Console** | *"In the SQL Query Console, developers can execute standard relational queries alongside high-dimensional vector similarity searches using simple SQL extensions."* |
+| **00:14 - 00:21** | **2D Vector Explorer** | *"With the 2D Vector Explorer, you can visually inspect vector embeddings, discover nearest neighbors, and explore semantic clusters interactively."* |
+| **00:21 - 00:28** | **In-Engine AI RAG & Metrics** | *"With built-in AI RAG and text summarization, CogniDB synthesizes context-aware answers natively inside your SQL statements."* |
+| **00:28 - 00:35** | **Disaster Recovery Snapshots** | *"And with the live Metrics and Disaster Recovery suite, CogniDB ensures point-in-time snapshot recovery with zero downtime. Experience the future of AI-native databases with CogniDB today!"* |
+
+---
+
+## 📲 Social Media Upload Instructions
+
+1. **LinkedIn / Twitter / YouTube Shorts**: Upload `cognidb_studio_hd_demo.mp4` directly!
+2. **Instagram Reel / TikTok**: Copy `cognidb_studio_hd_demo.mp4` to your phone or post directly via desktop browser.
