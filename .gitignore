@@ -1,3 +1,7 @@
+# Unignore repository docs
+!README.md
+!DOCUMENTATION.md
+
 # Maven build outputs
 target/
 *.class
