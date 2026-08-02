@@ -1,0 +1,20 @@
+# Maven build outputs
+target/
+*.class
+
+# Distribution zip artifacts
+dist/
+
+# IDE files
+.idea/
+*.iml
+.classpath
+.project
+.settings/
+.DS_Store
+
+# Local database runtime files
+*.wal
+*.db
+*.log
+*.pid
