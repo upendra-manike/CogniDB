@@ -183,12 +183,160 @@ CREATE TABLE products (
 
 > 💻 **Official Multi-Language Code Examples Repository**: 👉 **[https://github.com/upendra-manike/CogniDB_Examples](https://github.com/upendra-manike/CogniDB_Examples)**
 
+### 🍃 Spring Boot 3 & JPA
+CogniDB connects via standard PostgreSQL JDBC driver with Spring Data JPA entities and custom repository vector methods:
+
+```java
+// ProductEntity.java
+@Entity
+@Table(name = "products")
+public class Product {
+    @Id private String id;
+    private String name;
+    private String category;
+    private Double price;
+    private String description;
+    // getters & setters
+}
+
+// ProductRepository.java
+@Repository
+public interface ProductRepository extends JpaRepository<Product, String> {
+
+    @Query(value = "SELECT * FROM products WHERE category = :category AND embedding SIMILAR TO :searchTerm TOP :limit", nativeQuery = true)
+    List<Product> searchByVectorSimilarity(@Param("category") String category, 
+                                           @Param("searchTerm") String searchTerm, 
+                                           @Param("limit") int limit);
+}
+```
+
+---
+
 ### 🐍 Python
 ```python
 import requests
+import json
 
-API_URL = "http://localhost:8080/api/sql"
-payload = {"sql": "SELECT id, name FROM users WHERE embedding SIMILAR TO 'AI Architect' TOP 3"}
-response = requests.post(API_URL, json=payload)
-print(response.json())
+COGNIDB_URL = "http://localhost:8080/api/sql"
+
+def execute_query(sql):
+    response = requests.post(COGNIDB_URL, json={"sql": sql})
+    return response.json()
+
+# 1. Insert with Auto AI Embeddings
+execute_query("""
+    INSERT INTO developers VALUES (
+        'dev_401', 'Alice Johnson', 'Senior AI Engineer', 8,
+        AI_EMBED('Senior AI Engineer PyTorch LLM fine-tuning vector index')
+    );
+""")
+
+# 2. Hybrid SQL + HNSW Vector Search
+results = execute_query("""
+    SELECT id, name, role FROM developers 
+    WHERE experience_years > 4 AND embedding SIMILAR TO 'LLM fine tuning' TOP 1;
+""")
+print(json.dumps(results, indent=2))
+```
+
+---
+
+### 💚 Node.js / JavaScript
+```javascript
+const COGNIDB_URL = 'http://localhost:8080/api/sql';
+
+async function queryCogniDB(sql) {
+    const response = await fetch(COGNIDB_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sql })
+    });
+    return await response.json();
+}
+
+// Perform Vector Search
+queryCogniDB(`
+    SELECT id, name, region, latency_ms FROM node_services 
+    WHERE region = 'us-east-1' AND embedding SIMILAR TO 'authentication microservice' TOP 1;
+`).then(console.log);
+```
+
+---
+
+### 🔷 Go (Golang)
+```go
+package main
+
+import (
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"io"
+	"net/http"
+)
+
+func executeQuery(sql string) (string, error) {
+	body, _ := json.Marshal(map[string]string{"sql": sql})
+	resp, err := http.Post("http://localhost:8080/api/sql", "application/json", bytes.NewBuffer(body))
+	if err != nil { return "", err }
+	defer resp.Body.Close()
+	res, _ := io.ReadAll(resp.Body)
+	return string(res), nil
+}
+
+func main() {
+	query := "SELECT id, metric_name, value FROM go_metrics WHERE embedding SIMILAR TO 'cpu load alert' TOP 1;"
+	result, _ := executeQuery(query)
+	fmt.Println(result)
+}
+```
+
+---
+
+### 💜 C# / .NET 9
+```csharp
+using System;
+using System.Net.Http;
+using System.Text;
+using System.Text.Json;
+using System.Threading.Tasks;
+
+class Program {
+    private static readonly HttpClient client = new HttpClient();
+
+    static async Task Main() {
+        var payload = JsonSerializer.Serialize(new { sql = "SELECT id, event_type FROM dotnet_events WHERE embedding SIMILAR TO 'connection error' TOP 1;" });
+        var response = await client.PostAsync("http://localhost:8080/api/sql", new StringContent(payload, Encoding.UTF8, "application/json"));
+        Console.WriteLine(await response.Content.ReadAsStringAsync());
+    }
+}
+```
+
+---
+
+### 🦀 Rust
+```rust
+use serde::Serialize;
+use std::error::Error;
+
+#[derive(Serialize)]
+struct QueryRequest<'a> { sql: &'a str }
+
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn Error>> {
+    let client = reqwest::Client::new();
+    let body = QueryRequest { sql: "SELECT id, temp FROM rust_sensors WHERE embedding SIMILAR TO 'temperature warning' TOP 1;" };
+    let res = client.post("http://localhost:8080/api/sql").json(&body).send().await?.text().await?;
+    println!("{}", res);
+    Ok(())
+}
+```
+
+---
+
+### 💻 cURL / HTTP REST
+```bash
+curl -X POST "http://localhost:8080/api/sql" \
+  -H "Content-Type: application/json" \
+  -d '{"sql": "SELECT id, log_level, message FROM curl_logs WHERE log_level=\"ERROR\" AND embedding SIMILAR TO \"memory allocation failure\" TOP 1;"}'
 ```
