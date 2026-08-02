@@ -15,13 +15,13 @@ Instead of stitching together PostgreSQL, Redis, Elasticsearch, Kafka, and Pinec
 
 ## 📚 Guides, Documentation & Multi-Language Examples
 
-- 💻 **[Multi-Language Code Examples Repository](./examples)**: Complete working projects for **Spring Boot JPA, Python, Node.js, Go, C#, Rust, and cURL**.
-- 🍃 **[Spring Boot & JPA Integration Example](./examples/springboot-jpa)**: Connect via `@Entity`, `@Repository`, and `@Transactional`.
-- 🐍 **[Python Integration Example](./examples/python)**: Connect via REST API using Python `requests`.
-- 💚 **[Node.js Integration Example](./examples/nodejs)**: Connect via JavaScript async fetch.
-- 🔷 **[Go Integration Example](./examples/go)**: Connect via Golang `net/http`.
-- 💜 **[C# / .NET 8 Integration Example](./examples/csharp)**: Connect via C# `HttpClient`.
-- 🦀 **[Rust Integration Example](./examples/rust)**: Connect via Rust `tokio` and `reqwest`.
+- 💻 **[Multi-Language Code Examples Repository](https://github.com/upendra-manike/CogniDB_Examples)**: Dedicated repo for **Spring Boot JPA, Python, Node.js, Go, C#, Rust, and cURL**.
+- 🍃 **[Spring Boot & JPA Integration Example](https://github.com/upendra-manike/CogniDB_Examples/tree/main/springboot-jpa)**: Connect via `@Entity`, `@Repository`, and `@Transactional`.
+- 🐍 **[Python Integration Example](https://github.com/upendra-manike/CogniDB_Examples/tree/main/python)**: Connect via REST API using Python `requests`.
+- 💚 **[Node.js Integration Example](https://github.com/upendra-manike/CogniDB_Examples/tree/main/nodejs)**: Connect via JavaScript async fetch.
+- 🔷 **[Go Integration Example](https://github.com/upendra-manike/CogniDB_Examples/tree/main/go)**: Connect via Golang `net/http`.
+- 💜 **[C# / .NET 8 Integration Example](https://github.com/upendra-manike/CogniDB_Examples/tree/main/csharp)**: Connect via C# `HttpClient`.
+- 🦀 **[Rust Integration Example](https://github.com/upendra-manike/CogniDB_Examples/tree/main/rust)**: Connect via Rust `tokio` and `reqwest`.
 - 🎬 **[Official YouTube Video Walkthrough](https://www.youtube.com/watch?v=8xxpJwloe30)**: Watch the full feature demo.
 - 🎓 **[Step-by-Step Interactive Tutorial](./TUTORIAL.md)**: Hands-on guide from zero to running AI vector queries.
 - 📖 **[Complete Technical Documentation](./DOCUMENTATION.md)**: Full Query & Architecture Reference Guide.

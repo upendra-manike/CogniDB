@@ -181,6 +181,8 @@ CREATE TABLE products (
 
 ## 6. Backend Language SDK Integration
 
+> 💻 **Official Multi-Language Code Examples Repository**: 👉 **[https://github.com/upendra-manike/CogniDB_Examples](https://github.com/upendra-manike/CogniDB_Examples)**
+
 ### 🐍 Python
 ```python
 import requests
