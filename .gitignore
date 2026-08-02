@@ -12,6 +12,13 @@
 !generate_studio_narration_tab_by_tab.py
 !build_tab_by_tab_video.py
 !deploy/clients/
+!deploy/maven/
+
+# Package build output artifacts to ignore
+deploy/clients/python/build/
+deploy/clients/python/dist/
+deploy/clients/python/*.egg-info/
+deploy/clients/nodejs/*.tgz
 
 # Maven build outputs
 target/
