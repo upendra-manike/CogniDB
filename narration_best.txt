@@ -1,0 +1,15 @@
+Hi everyone! Welcome to CogniDB, the next generation AI native database engine.
+
+If you are tired of database sprawl—stitching together PostgreSQL for SQL, Pinecone for vectors, Redis for caching, and Kafka for streaming—CogniDB is built for you!
+
+CogniDB unifies relational SQL, sub-millisecond HNSW vector search, in-memory caching, and real-time streaming into one high-performance Java 21 engine.
+
+In the CogniDB SQL Console, you can run standard SQL alongside vector similarity search using simple syntax like SIMILAR TO, allowing hybrid queries in a single call.
+
+With the interactive 2D Vector Explorer, you can visualize high-dimensional embeddings, locate nearest neighbors, and inspect semantic clusters live.
+
+CogniDB also brings AI natively inside your database, supporting on-the-fly vector embedding generation, AI RAG prompts, and text summarization directly in SQL.
+
+With full Spring Boot JPA support and point-in-time disaster recovery snapshots, CogniDB is production ready for your next AI platform.
+
+Star CogniDB on GitHub today and start building!
