@@ -212,31 +212,36 @@ public interface ProductRepository extends JpaRepository<Product, String> {
 
 ---
 
-### 🐍 Python
+### 🐍 Python (`pip install cognidb-client`)
+
+Official PyPI package live at 👉 **[https://pypi.org/project/cognidb-client/](https://pypi.org/project/cognidb-client/)**
+
+```bash
+pip install cognidb-client
+```
+
 ```python
-import requests
-import json
+from cognidb import CogniDBClient
 
-COGNIDB_URL = "http://localhost:8080/api/sql"
+# Initialize CogniDB Client
+client = CogniDBClient(host="http://localhost:8080")
 
-def execute_query(sql):
-    response = requests.post(COGNIDB_URL, json={"sql": sql})
-    return response.json()
-
-# 1. Insert with Auto AI Embeddings
-execute_query("""
-    INSERT INTO developers VALUES (
-        'dev_401', 'Alice Johnson', 'Senior AI Engineer', 8,
-        AI_EMBED('Senior AI Engineer PyTorch LLM fine-tuning vector index')
-    );
-""")
+# 1. Insert Record with Auto AI Embeddings
+client.insert_vector(
+    table="developers",
+    record_id="dev_401",
+    text="Senior AI Engineer PyTorch LLM fine-tuning vector index",
+    extra_fields={"name": "Alice Johnson", "experience_years": 8}
+)
 
 # 2. Hybrid SQL + HNSW Vector Search
-results = execute_query("""
-    SELECT id, name, role FROM developers 
-    WHERE experience_years > 4 AND embedding SIMILAR TO 'LLM fine tuning' TOP 1;
-""")
-print(json.dumps(results, indent=2))
+results = client.vector_search(
+    table="developers",
+    query_text="LLM fine tuning",
+    top_k=1,
+    where_clause="experience_years > 4"
+)
+print(results)
 ```
 
 ---
