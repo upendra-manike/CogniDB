@@ -17,13 +17,14 @@ target/
 # Distribution zip artifacts
 dist/
 
-# IDE files
+# IDE & OS files
+.DS_Store
+*.DS_Store
 .idea/
 *.iml
 .classpath
 .project
 .settings/
-.DS_Store
 
 # Local database runtime files
 *.wal
