@@ -3,6 +3,9 @@
 [![Build Status](https://github.com/upendra-manike/CogniDB/workflows/CogniDB%20CI%20Workflow/badge.svg)](https://github.com/upendra-manike/CogniDB/actions)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Java Version](https://img.shields.io/badge/Java-21%20LTS-orange.svg)](https://jdk.java.net/21/)
+[![YouTube Demo](https://img.shields.io/badge/YouTube-Watch%20Demo-red?logo=youtube)](https://www.youtube.com/watch?v=8xxpJwloe30)
+
+> 🎬 **[Watch the Official CogniDB Studio Video Demo on YouTube](https://www.youtube.com/watch?v=8xxpJwloe30)**
 
 **CogniDB** is a distributed, high-performance, AI-native unified database engine built from the ground up on **Java 21 LTS, Netty 4, HNSW Vector Indexing, LSM-Tree Storage, BM25 Full-Text Search, and Raft Consensus**.
 
@@ -12,6 +15,7 @@ Instead of stitching together PostgreSQL, Redis, Elasticsearch, Kafka, and Pinec
 
 ## 📚 Guides & Documentation
 
+- 🎬 **[Official YouTube Video Walkthrough](https://www.youtube.com/watch?v=8xxpJwloe30)**: Watch the full feature demo.
 - 🍃 **[Spring Boot & JPA Integration Guide](./DOCUMENTATION.md#4-spring-boot--jpa-integration-guide)**: Connect via `@Entity`, `@Repository`, and `@Transactional`.
 - 🎓 **[Step-by-Step Interactive Tutorial](./TUTORIAL.md)**: Hands-on guide from zero to running AI vector queries.
 - 📖 **[Complete Technical Documentation](./DOCUMENTATION.md)**: Full Query & Architecture Reference Guide.

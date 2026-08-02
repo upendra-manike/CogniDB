@@ -1,5 +1,7 @@
 # 📱 WhatsApp Status Launch Kit for CogniDB
 
+> 🎬 **Official YouTube Video Demo**: 👉 **[https://www.youtube.com/watch?v=8xxpJwloe30](https://www.youtube.com/watch?v=8xxpJwloe30)**
+
 Here are high-engagement WhatsApp Status captions to post alongside your demo video (`cognidb_studio_tab_by_tab_demo.mp4`)!
 
 ---
@@ -10,8 +12,8 @@ Here are high-engagement WhatsApp Status captions to post alongside your demo vi
 🚀 Excited to share CogniDB—the AI-Native Unified Database Engine I built in Java 21! 
 Relational SQL + HNSW Vector Search + In-Memory Caching in ONE engine. 
 
-⭐ Check out the project on GitHub:
-https://github.com/upendra-manike/CogniDB
+🎬 Watch full demo on YouTube: https://www.youtube.com/watch?v=8xxpJwloe30
+⭐ Check out the project on GitHub: https://github.com/upendra-manike/CogniDB
 ```
 
 ---

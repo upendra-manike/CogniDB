@@ -2,6 +2,8 @@
 
 Welcome to the **CogniDB Hands-On Tutorial**! This step-by-step guide will take you from zero to running advanced hybrid vector SQL queries, ACID transactions, AI RAG prompts, full-text searches, and disaster recovery snapshots across multiple backend programming languages.
 
+> 🎬 **[Watch the Official CogniDB Studio Video Demo on YouTube](https://www.youtube.com/watch?v=8xxpJwloe30)**
+
 ---
 
 ## 📌 Prerequisites

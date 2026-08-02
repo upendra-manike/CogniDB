@@ -1,5 +1,7 @@
 # 📺 CogniDB YouTube Video Launch Kit
 
+> 🎬 **Official YouTube Video Demo**: 👉 **[https://www.youtube.com/watch?v=8xxpJwloe30](https://www.youtube.com/watch?v=8xxpJwloe30)**
+
 Use this production-ready kit to publish your demo video (`cognidb_studio_tab_by_tab_demo.mp4`) to **YouTube** for maximum developer reach and engagement!
 
 ---

@@ -2,6 +2,8 @@
 
 Welcome to the official technical documentation for **CogniDB**, the next-generation AI-native unified database engine.
 
+> 🎬 **[Watch the Official CogniDB Studio Video Demo on YouTube](https://www.youtube.com/watch?v=8xxpJwloe30)**
+
 ---
 
 ## 📚 Table of Contents

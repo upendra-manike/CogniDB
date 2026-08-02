@@ -2,10 +2,13 @@
 
 We have rendered a **Full HD (1920x1080) 1 Minute 16 Second Master Demo Video** with **Microsoft Studio Neural AI Voice (`en-US-ChristopherNeural`)** that **EXPLICITLY SWITCHES TABS** in the video for every single screen of CogniDB Web Studio!
 
+> 🎬 **Official YouTube Video Demo**: 👉 **[https://www.youtube.com/watch?v=8xxpJwloe30](https://www.youtube.com/watch?v=8xxpJwloe30)**
+
 ---
 
 ## 🎥 Video & Audio File Locations
 
+- 📹 **YouTube Video Link**: **[https://www.youtube.com/watch?v=8xxpJwloe30](https://www.youtube.com/watch?v=8xxpJwloe30)**
 - 📹 **Verified 1080p MP4 Demo Video**: `cognidb_studio_tab_by_tab_demo.mp4` (1.6 MB)
 - 🎙️ **Studio Neural AI Voice**: Microsoft `en-US-ChristopherNeural`
 - 🛠️ **Automated Tab Screenshot Script**: `capture_real_tabs.py`
