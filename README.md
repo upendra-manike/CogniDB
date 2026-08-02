@@ -13,10 +13,16 @@ Instead of stitching together PostgreSQL, Redis, Elasticsearch, Kafka, and Pinec
 
 ---
 
-## 📚 Guides & Documentation
+## 📚 Guides, Documentation & Multi-Language Examples
 
+- 💻 **[Multi-Language Code Examples Repository](./examples)**: Complete working projects for **Spring Boot JPA, Python, Node.js, Go, C#, Rust, and cURL**.
+- 🍃 **[Spring Boot & JPA Integration Example](./examples/springboot-jpa)**: Connect via `@Entity`, `@Repository`, and `@Transactional`.
+- 🐍 **[Python Integration Example](./examples/python)**: Connect via REST API using Python `requests`.
+- 💚 **[Node.js Integration Example](./examples/nodejs)**: Connect via JavaScript async fetch.
+- 🔷 **[Go Integration Example](./examples/go)**: Connect via Golang `net/http`.
+- 💜 **[C# / .NET 8 Integration Example](./examples/csharp)**: Connect via C# `HttpClient`.
+- 🦀 **[Rust Integration Example](./examples/rust)**: Connect via Rust `tokio` and `reqwest`.
 - 🎬 **[Official YouTube Video Walkthrough](https://www.youtube.com/watch?v=8xxpJwloe30)**: Watch the full feature demo.
-- 🍃 **[Spring Boot & JPA Integration Guide](./DOCUMENTATION.md#4-spring-boot--jpa-integration-guide)**: Connect via `@Entity`, `@Repository`, and `@Transactional`.
 - 🎓 **[Step-by-Step Interactive Tutorial](./TUTORIAL.md)**: Hands-on guide from zero to running AI vector queries.
 - 📖 **[Complete Technical Documentation](./DOCUMENTATION.md)**: Full Query & Architecture Reference Guide.
 - ☁️ **[AWS EC2 & Cloud Deployment Guide](./deploy/aws_ec2_install.sh)**: Enterprise production installation script.

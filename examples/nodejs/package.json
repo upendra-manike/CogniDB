@@ -1,0 +1,13 @@
+{
+  "name": "cognidb-nodejs-demo",
+  "version": "1.0.0",
+  "description": "Node.js REST & Vector CRUD Operations with CogniDB",
+  "main": "index.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "node-fetch": "^2.7.0"
+  }
+}

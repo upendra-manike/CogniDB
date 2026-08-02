@@ -1,4 +1,4 @@
-# Unignore repository docs & demo materials
+# Unignore repository docs & demo materials & examples
 !README.md
 !DOCUMENTATION.md
 !TUTORIAL.md
@@ -8,6 +8,7 @@
 !capture_real_tabs.py
 !generate_studio_narration_tab_by_tab.py
 !build_tab_by_tab_video.py
+!examples/
 
 # Maven build outputs
 target/
