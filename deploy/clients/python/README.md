@@ -1,4 +1,4 @@
-# 🐍 CogniDB Official Python SDK (`pip install cognidb`)
+# 🐍 CogniDB Official Python SDK (`pip install cognidb-client`)
 
 Official Python Client for **CogniDB**—the AI-Native Unified Database Engine.
 
@@ -7,7 +7,7 @@ Official Python Client for **CogniDB**—the AI-Native Unified Database Engine.
 ## ⚡ Quick Start
 
 ```bash
-pip install cognidb
+pip install cognidb-client
 ```
 
 ```python

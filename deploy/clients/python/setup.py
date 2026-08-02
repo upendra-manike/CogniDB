@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name="cognidb",
+    name="cognidb-client",
     version="1.0.0",
     description="Official Python Client for CogniDB AI-Native Unified Database Engine",
     long_description=open("README.md").read(),

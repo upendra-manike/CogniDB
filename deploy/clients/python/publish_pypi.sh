@@ -23,8 +23,8 @@ fi
 echo "🚀 Uploading to PyPI..."
 if twine upload dist/*; then
     echo "================================================="
-    echo "✅ Successfully published cognidb to PyPI!"
-    echo "Developers can now install via: pip install cognidb"
+    echo "✅ Successfully published cognidb-client to PyPI!"
+    echo "Developers can now install via: pip install cognidb-client"
     echo "================================================="
 else
     echo "================================================="
