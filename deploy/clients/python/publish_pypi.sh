@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -e
 
 echo "================================================="
 echo "🐍 Publishing CogniDB Python Package to PyPI"
@@ -20,7 +21,15 @@ fi
 
 # 4. Upload to PyPI
 echo "🚀 Uploading to PyPI..."
-twine upload dist/*
-
-echo "✅ Successfully published cognidb to PyPI!"
-echo "Developers can now install via: pip install cognidb"
+if twine upload dist/*; then
+    echo "================================================="
+    echo "✅ Successfully published cognidb to PyPI!"
+    echo "Developers can now install via: pip install cognidb"
+    echo "================================================="
+else
+    echo "================================================="
+    echo "❌ Upload failed. Please verify your PyPI API token."
+    echo "Note: Username must be '__token__' and Password must be 'pypi-...' API token from https://pypi.org/manage/account/token/"
+    echo "================================================="
+    exit 1
+fi
