@@ -13,6 +13,7 @@ public class QueryExecutor {
     private final AIEngine aiEngine;
     private final QueryOptimizer optimizer;
     private final SQLParser parser;
+    private String activeDatabase = StorageEngine.DEFAULT_DB;
 
     public static class QueryResult {
         private final List<Map<String, Object>> rows;
@@ -40,33 +41,108 @@ public class QueryExecutor {
         this.parser = new SQLParser(aiEngine);
     }
 
+    public String getActiveDatabase() {
+        return activeDatabase;
+    }
+
+    public void setActiveDatabase(String activeDatabase) {
+        if (activeDatabase != null && !activeDatabase.isBlank()) {
+            this.activeDatabase = activeDatabase.toLowerCase();
+        }
+    }
+
     public QueryResult execute(String sql) throws Exception {
+        return execute(sql, this.activeDatabase);
+    }
+
+    public QueryResult execute(String sql, String dbContext) throws Exception {
         long startTime = System.nanoTime();
         AST.Statement stmt = parser.parse(sql);
+        String currentDb = (dbContext != null && !dbContext.isBlank()) ? dbContext.toLowerCase() : this.activeDatabase;
+
+        if (stmt instanceof AST.CreateDatabaseStatement) {
+            AST.CreateDatabaseStatement createDb = (AST.CreateDatabaseStatement) stmt;
+            storageEngine.createDatabase(createDb.getDbName());
+            long elapsed = System.nanoTime() - startTime;
+            return new QueryResult(Collections.emptyList(), null, elapsed, "Database '" + createDb.getDbName() + "' created successfully.");
+        }
+
+        if (stmt instanceof AST.DropDatabaseStatement) {
+            AST.DropDatabaseStatement dropDb = (AST.DropDatabaseStatement) stmt;
+            storageEngine.dropDatabase(dropDb.getDbName());
+            long elapsed = System.nanoTime() - startTime;
+            return new QueryResult(Collections.emptyList(), null, elapsed, "Database '" + dropDb.getDbName() + "' dropped successfully.");
+        }
+
+        if (stmt instanceof AST.UseDatabaseStatement) {
+            AST.UseDatabaseStatement useDb = (AST.UseDatabaseStatement) stmt;
+            storageEngine.getOrCreateDatabase(useDb.getDbName());
+            this.activeDatabase = useDb.getDbName();
+            long elapsed = System.nanoTime() - startTime;
+            return new QueryResult(Collections.emptyList(), null, elapsed, "Switched to database '" + useDb.getDbName() + "'.");
+        }
+
+        if (stmt instanceof AST.ShowDatabasesStatement) {
+            List<String> dbs = storageEngine.listDatabases();
+            List<Map<String, Object>> rows = new ArrayList<>();
+            for (String db : dbs) {
+                Map<String, Object> r = new LinkedHashMap<>();
+                r.put("Database", db);
+                r.put("Status", db.equalsIgnoreCase(activeDatabase) ? "ACTIVE" : "AVAILABLE");
+                rows.add(r);
+            }
+            long elapsed = System.nanoTime() - startTime;
+            return new QueryResult(rows, null, elapsed, "Listed " + dbs.size() + " databases.");
+        }
+
+        if (stmt instanceof AST.ShowTablesStatement) {
+            AST.ShowTablesStatement showT = (AST.ShowTablesStatement) stmt;
+            String targetDb = showT.getDbName() != null ? showT.getDbName() : currentDb;
+            Map<String, TableSchema> schemas = storageEngine.getAllSchemas(targetDb);
+            List<Map<String, Object>> rows = new ArrayList<>();
+            for (TableSchema schema : schemas.values()) {
+                Map<String, Object> r = new LinkedHashMap<>();
+                r.put("Database", targetDb);
+                r.put("Table", schema.getTableName());
+                r.put("PrimaryKey", schema.getPrimaryKeyColumn() != null ? schema.getPrimaryKeyColumn() : "None");
+                r.put("VectorColumn", schema.getVectorColumn() != null ? schema.getVectorColumn() : "None");
+                r.put("RowCount", storageEngine.scanAll(targetDb, schema.getTableName()).size());
+                rows.add(r);
+            }
+            long elapsed = System.nanoTime() - startTime;
+            return new QueryResult(rows, null, elapsed, "Listed " + schemas.size() + " tables in database '" + targetDb + "'.");
+        }
 
         if (stmt instanceof AST.CreateTableStatement) {
             AST.CreateTableStatement createStmt = (AST.CreateTableStatement) stmt;
-            TableSchema schema = new TableSchema(createStmt.getTableName());
+            String[] target = resolveDbAndTable(createStmt.getTableName(), currentDb);
+            String targetDb = target[0];
+            String tableName = target[1];
+
+            TableSchema schema = new TableSchema(tableName);
             for (ColumnDef col : createStmt.getColumns()) {
                 schema.addColumn(col);
             }
-            storageEngine.createTable(schema);
+            storageEngine.createTable(targetDb, schema);
             long elapsed = System.nanoTime() - startTime;
-            return new QueryResult(Collections.emptyList(), null, elapsed, "Table '" + createStmt.getTableName() + "' created successfully.");
+            return new QueryResult(Collections.emptyList(), null, elapsed, "Table '" + targetDb + "." + tableName + "' created successfully.");
         }
 
         if (stmt instanceof AST.InsertStatement) {
             AST.InsertStatement insertStmt = (AST.InsertStatement) stmt;
-            TableSchema schema = storageEngine.getSchema(insertStmt.getTableName());
+            String[] target = resolveDbAndTable(insertStmt.getTableName(), currentDb);
+            String targetDb = target[0];
+            String tableName = target[1];
+
+            TableSchema schema = storageEngine.getSchema(targetDb, tableName);
             if (schema == null) {
-                throw new IllegalArgumentException("Table '" + insertStmt.getTableName() + "' does not exist.");
+                throw new IllegalArgumentException("Table '" + tableName + "' does not exist in database '" + targetDb + "'.");
             }
 
             Tuple rawTuple = insertStmt.getTuple();
             Tuple alignedTuple = new Tuple();
             List<ColumnDef> cols = schema.getColumnList();
 
-            // Align positional vs key-based inserts
             int positionalIndex = 0;
             for (ColumnDef col : cols) {
                 Object val = rawTuple.get(col.getName());
@@ -81,9 +157,9 @@ public class QueryExecutor {
                 alignedTuple.set(col.getName(), val);
             }
 
-            storageEngine.insert(insertStmt.getTableName(), alignedTuple);
+            storageEngine.insert(targetDb, tableName, alignedTuple);
             long elapsed = System.nanoTime() - startTime;
-            return new QueryResult(Collections.emptyList(), null, elapsed, "1 row inserted successfully into '" + insertStmt.getTableName() + "'.");
+            return new QueryResult(Collections.emptyList(), null, elapsed, "1 row inserted successfully into '" + targetDb + "." + tableName + "'.");
         }
 
         if (stmt instanceof AST.StreamPublishStatement) {
@@ -95,8 +171,11 @@ public class QueryExecutor {
 
         if (stmt instanceof AST.SelectStatement) {
             AST.SelectStatement selectStmt = (AST.SelectStatement) stmt;
-            ExecutionPlan plan = optimizer.optimize(selectStmt);
+            String[] target = resolveDbAndTable(selectStmt.getTableName(), currentDb);
+            String targetDb = target[0];
+            String tableName = target[1];
 
+            ExecutionPlan plan = optimizer.optimize(targetDb, selectStmt);
             List<Tuple> candidateTuples = new ArrayList<>();
 
             switch (plan.getStrategy()) {
@@ -105,12 +184,12 @@ public class QueryExecutor {
                     if (selectStmt.getLimit() <= 0 && vecCond.getK() > 0) {
                         selectStmt.setLimit(vecCond.getK());
                     }
-                    HNSWIndex hnsw = storageEngine.getVectorIndex(selectStmt.getTableName(), vecCond.getVectorColumn());
+                    HNSWIndex hnsw = storageEngine.getVectorIndex(targetDb, tableName, vecCond.getVectorColumn());
                     if (hnsw != null) {
                         float[] targetVec = vecCond.getTargetVector() != null ? vecCond.getTargetVector() : aiEngine.aiEmbed(vecCond.getQueryText());
                         List<HNSWIndex.VectorSearchResult> searchResults = hnsw.search(targetVec, vecCond.getK());
                         for (HNSWIndex.VectorSearchResult res : searchResults) {
-                            Tuple tuple = storageEngine.getByPrimaryKey(selectStmt.getTableName(), res.getId());
+                            Tuple tuple = storageEngine.getByPrimaryKey(targetDb, tableName, res.getId());
                             if (tuple != null) {
                                 tuple.set("_similarity_score", res.getSimilarity());
                                 tuple.set("_vector_distance", res.getDistance());
@@ -118,31 +197,31 @@ public class QueryExecutor {
                             }
                         }
                     } else {
-                        candidateTuples = storageEngine.scanAll(selectStmt.getTableName());
+                        candidateTuples = storageEngine.scanAll(targetDb, tableName);
                     }
                     break;
                 }
 
                 case INDEX_INVERTED_FULLTEXT: {
                     AST.FullTextCondition ftCond = selectStmt.getFullTextCondition();
-                    InvertedIndex invIdx = storageEngine.getInvertedIndex(selectStmt.getTableName());
+                    InvertedIndex invIdx = storageEngine.getInvertedIndex(targetDb, tableName);
                     if (invIdx != null) {
                         List<InvertedIndex.SearchResult> results = invIdx.search(ftCond.getQueryText(), selectStmt.getLimit() > 0 ? selectStmt.getLimit() : 100);
                         for (InvertedIndex.SearchResult res : results) {
-                            Tuple tuple = storageEngine.getByPrimaryKey(selectStmt.getTableName(), res.getDocId());
+                            Tuple tuple = storageEngine.getByPrimaryKey(targetDb, tableName, res.getDocId());
                             if (tuple != null) {
                                 tuple.set("_bm25_score", res.getScore());
                                 candidateTuples.add(tuple);
                             }
                         }
                     } else {
-                        candidateTuples = storageEngine.scanAll(selectStmt.getTableName());
+                        candidateTuples = storageEngine.scanAll(targetDb, tableName);
                     }
                     break;
                 }
 
                 case INDEX_PRIMARY_KEY: {
-                    TableSchema schema = storageEngine.getSchema(selectStmt.getTableName());
+                    TableSchema schema = storageEngine.getSchema(targetDb, tableName);
                     String pkCol = schema.getPrimaryKeyColumn();
                     String pkVal = null;
                     for (AST.Condition c : selectStmt.getWhereConditions()) {
@@ -152,7 +231,7 @@ public class QueryExecutor {
                         }
                     }
                     if (pkVal != null) {
-                        Tuple tuple = storageEngine.getByPrimaryKey(selectStmt.getTableName(), pkVal);
+                        Tuple tuple = storageEngine.getByPrimaryKey(targetDb, tableName, pkVal);
                         if (tuple != null) candidateTuples.add(tuple);
                     }
                     break;
@@ -160,7 +239,7 @@ public class QueryExecutor {
 
                 case FULL_TABLE_SCAN:
                 default:
-                    candidateTuples = storageEngine.scanAll(selectStmt.getTableName());
+                    candidateTuples = storageEngine.scanAll(targetDb, tableName);
                     break;
             }
 
@@ -225,10 +304,19 @@ public class QueryExecutor {
             }
 
             long elapsed = System.nanoTime() - startTime;
-            return new QueryResult(outputRows, plan, elapsed, "Query executed successfully. " + outputRows.size() + " rows returned.");
+            return new QueryResult(outputRows, plan, elapsed, "Query executed successfully on database '" + targetDb + "'. " + outputRows.size() + " rows returned.");
         }
 
         throw new IllegalArgumentException("Unknown SQL statement.");
+    }
+
+    private String[] resolveDbAndTable(String rawName, String fallbackDb) {
+        if (rawName == null) return new String[]{ fallbackDb, "" };
+        if (rawName.contains(".")) {
+            String[] parts = rawName.split("\\.", 2);
+            return new String[]{ parts[0].toLowerCase(), parts[1].toLowerCase() };
+        }
+        return new String[]{ fallbackDb != null ? fallbackDb.toLowerCase() : StorageEngine.DEFAULT_DB, rawName.toLowerCase() };
     }
 
     private boolean matchesWhereConditions(Tuple tuple, List<AST.Condition> conditions) {

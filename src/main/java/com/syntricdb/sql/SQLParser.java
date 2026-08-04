@@ -26,7 +26,17 @@ public class SQLParser {
         String trimmed = sql.trim().replaceAll(";$", "");
         String uppercase = trimmed.toUpperCase();
 
-        if (uppercase.startsWith("CREATE TABLE")) {
+        if (uppercase.startsWith("CREATE DATABASE")) {
+            return parseCreateDatabase(trimmed);
+        } else if (uppercase.startsWith("DROP DATABASE")) {
+            return parseDropDatabase(trimmed);
+        } else if (uppercase.startsWith("USE ")) {
+            return parseUseDatabase(trimmed);
+        } else if (uppercase.equals("SHOW DATABASES") || uppercase.equals("SHOW SCHEMAS")) {
+            return new AST.ShowDatabasesStatement();
+        } else if (uppercase.startsWith("SHOW TABLES")) {
+            return parseShowTables(trimmed);
+        } else if (uppercase.startsWith("CREATE TABLE")) {
             return parseCreateTable(trimmed);
         } else if (uppercase.startsWith("INSERT INTO")) {
             return parseInsert(trimmed);
@@ -39,9 +49,45 @@ public class SQLParser {
         throw new IllegalArgumentException("Unsupported SQL statement syntax: " + trimmed);
     }
 
+    private AST.CreateDatabaseStatement parseCreateDatabase(String sql) {
+        Pattern p = Pattern.compile("CREATE\\s+DATABASE\\s+(?:IF\\s+NOT\\s+EXISTS\\s+)?([a-zA-Z0-9_]+)", Pattern.CASE_INSENSITIVE);
+        Matcher m = p.matcher(sql);
+        if (!m.find()) {
+            throw new IllegalArgumentException("Invalid CREATE DATABASE syntax. Expected: CREATE DATABASE <database_name>");
+        }
+        return new AST.CreateDatabaseStatement(m.group(1).trim());
+    }
+
+    private AST.DropDatabaseStatement parseDropDatabase(String sql) {
+        Pattern p = Pattern.compile("DROP\\s+DATABASE\\s+(?:IF\\s+EXISTS\\s+)?([a-zA-Z0-9_]+)", Pattern.CASE_INSENSITIVE);
+        Matcher m = p.matcher(sql);
+        if (!m.find()) {
+            throw new IllegalArgumentException("Invalid DROP DATABASE syntax. Expected: DROP DATABASE <database_name>");
+        }
+        return new AST.DropDatabaseStatement(m.group(1).trim());
+    }
+
+    private AST.UseDatabaseStatement parseUseDatabase(String sql) {
+        Pattern p = Pattern.compile("USE\\s+([a-zA-Z0-9_]+)", Pattern.CASE_INSENSITIVE);
+        Matcher m = p.matcher(sql);
+        if (!m.find()) {
+            throw new IllegalArgumentException("Invalid USE syntax. Expected: USE <database_name>");
+        }
+        return new AST.UseDatabaseStatement(m.group(1).trim());
+    }
+
+    private AST.ShowTablesStatement parseShowTables(String sql) {
+        Pattern p = Pattern.compile("SHOW\\s+TABLES(?:\\s+(?:FROM|IN)\\s+([a-zA-Z0-9_]+))?", Pattern.CASE_INSENSITIVE);
+        Matcher m = p.matcher(sql);
+        if (m.find() && m.group(1) != null) {
+            return new AST.ShowTablesStatement(m.group(1).trim());
+        }
+        return new AST.ShowTablesStatement(null);
+    }
+
     private AST.CreateTableStatement parseCreateTable(String sql) {
-        // Syntax: CREATE TABLE users (id VARCHAR PRIMARY KEY, age INT, bio VARCHAR, embedding FLOAT_VECTOR(128))
-        Pattern p = Pattern.compile("CREATE\\s+TABLE\\s+([a-zA-Z0-9_]+)\\s*\\((.*)\\)", Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+        // Syntax: CREATE TABLE [db.]users (id VARCHAR PRIMARY KEY, age INT, bio VARCHAR, embedding FLOAT_VECTOR(128))
+        Pattern p = Pattern.compile("CREATE\\s+TABLE\\s+([a-zA-Z0-9_\\.]+)\\s*\\((.*)\\)", Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
         Matcher m = p.matcher(sql);
         if (!m.find()) {
             throw new IllegalArgumentException("Invalid CREATE TABLE syntax.");
@@ -90,9 +136,7 @@ public class SQLParser {
     }
 
     private AST.InsertStatement parseInsert(String sql) throws Exception {
-        // Syntax: INSERT INTO users VALUES ('u1', 32, 'Java Tech Lead', AI_EMBED('Java Tech Lead'))
-        // or JSON-style: INSERT INTO users VALUES {"id":"u1", "age":32, "bio":"Java Tech Lead"}
-        Pattern p = Pattern.compile("INSERT\\s+INTO\\s+([a-zA-Z0-9_]+)\\s+VALUES\\s*(.*)", Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+        Pattern p = Pattern.compile("INSERT\\s+INTO\\s+([a-zA-Z0-9_\\.]+)\\s+VALUES\\s*(.*)", Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
         Matcher m = p.matcher(sql);
         if (!m.find()) {
             throw new IllegalArgumentException("Invalid INSERT INTO syntax.");
@@ -114,12 +158,10 @@ public class SQLParser {
                 }
             }
         } else {
-            // Expression values list parser
             if (valuesBody.startsWith("(") && valuesBody.endsWith(")")) {
                 valuesBody = valuesBody.substring(1, valuesBody.length() - 1);
             }
             List<String> tokens = parseCSVValues(valuesBody);
-            // Will map positions or named parameters in executor
             for (int i = 0; i < tokens.size(); i++) {
                 String valStr = tokens.get(i).trim();
                 if (valStr.toUpperCase().startsWith("AI_EMBED(")) {
@@ -135,8 +177,7 @@ public class SQLParser {
     }
 
     private AST.SelectStatement parseSelect(String sql) {
-        // Syntax: SELECT id, name, AI_SUMMARIZE(bio) FROM users WHERE embedding SIMILAR TO 'Java Engineer' AND city='Hyderabad' AND age>30 LIMIT 10
-        Pattern p = Pattern.compile("SELECT\\s+(.*?)\\s+FROM\\s+([a-zA-Z0-9_]+)(?:\\s+WHERE\\s+(.*?))?(?:\\s+ORDER\\s+BY\\s+([a-zA-Z0-9_]+)(?:\\s+(ASC|DESC))?)?(?:\\s+LIMIT\\s+(\\d+))?$", Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+        Pattern p = Pattern.compile("SELECT\\s+(.*?)\\s+FROM\\s+([a-zA-Z0-9_\\.]+)(?:\\s+WHERE\\s+(.*?))?(?:\\s+ORDER\\s+BY\\s+([a-zA-Z0-9_]+)(?:\\s+(ASC|DESC))?)?(?:\\s+LIMIT\\s+(\\d+))?$", Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
         Matcher m = p.matcher(sql);
         if (!m.find()) {
             throw new IllegalArgumentException("Invalid SELECT query syntax.");

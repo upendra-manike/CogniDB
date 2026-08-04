@@ -2,6 +2,7 @@
 
 let authToken = localStorage.getItem('syntricdb_auth_token') || '';
 let currentUser = localStorage.getItem('syntricdb_user') || '';
+let activeDb = 'default';
 
 document.addEventListener('DOMContentLoaded', () => {
     initNavigation();
@@ -33,6 +34,7 @@ async function initAuth() {
             if (data.success) {
                 currentUser = data.username || currentUser;
                 showAuthenticatedState();
+                await loadDatabases();
                 refreshClusterStats();
                 loadTables();
                 renderVectorCanvas();
@@ -97,6 +99,7 @@ async function submitStudioLogin() {
 
             if (errorBanner) errorBanner.style.display = 'none';
             showAuthenticatedState();
+            await loadDatabases();
             refreshClusterStats();
             loadTables();
             renderVectorCanvas();
@@ -153,6 +156,66 @@ function logoutStudio() {
     showLoginModal('Logged out successfully.');
 }
 
+async function loadDatabases() {
+    try {
+        const res = await fetchWithAuth('/api/databases');
+        const data = await res.json();
+        if (data.success && data.databases) {
+            const selector = document.getElementById('db-context-selector');
+            if (selector) {
+                selector.innerHTML = '';
+                data.databases.forEach(db => {
+                    const opt = document.createElement('option');
+                    opt.value = db;
+                    opt.textContent = db;
+                    if (db === activeDb || db === data.activeDatabase) {
+                        opt.selected = true;
+                    }
+                    selector.appendChild(opt);
+                });
+                if (data.activeDatabase) activeDb = data.activeDatabase;
+            }
+        }
+    } catch (e) {
+        console.error('Error loading databases:', e);
+    }
+}
+
+function onDatabaseContextChange() {
+    const selector = document.getElementById('db-context-selector');
+    if (selector) {
+        activeDb = selector.value;
+    }
+    refreshClusterStats();
+    loadTables();
+    renderVectorCanvas();
+}
+
+async function promptCreateDatabase() {
+    const dbName = prompt('Enter new database name (e.g. production, analytics, test_db):');
+    if (!dbName || !dbName.trim()) return;
+
+    try {
+        const res = await fetchWithAuth('/api/databases', {
+            method: 'POST',
+            body: JSON.stringify({ name: dbName.trim() })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+            alert(data.message);
+            activeDb = dbName.trim().toLowerCase();
+            await loadDatabases();
+            refreshClusterStats();
+            loadTables();
+        } else {
+            alert('Error creating database: ' + (data.error || data.message));
+        }
+    } catch (e) {
+        console.error('Error creating database:', e);
+    }
+}
+
 function initNavigation() {
     const navItems = document.querySelectorAll('.nav-item');
     navItems.forEach(item => {
@@ -162,7 +225,6 @@ function initNavigation() {
         });
     });
 
-    // Keyboard shortcut Shift+Enter for SQL execution
     const sqlInput = document.getElementById('sql-input');
     if (sqlInput) {
         sqlInput.addEventListener('keydown', (e) => {
@@ -184,14 +246,13 @@ function switchTab(tabId) {
     if (btn) btn.classList.add('active');
     if (page) page.classList.add('active');
 
-    // Title update
     const titleElem = document.getElementById('page-title');
     const descElem = document.getElementById('page-desc');
 
     switch (tabId) {
         case 'dashboard':
-            titleElem.textContent = 'Cluster Overview';
-            descElem.textContent = 'Real-time status of unified LSM storage, HNSW vector index, Raft cluster & cache engine.';
+            titleElem.textContent = 'Cluster & Multi-Database Overview';
+            descElem.textContent = 'Real-time status of unified LSM storage, HNSW vector indexes, Raft cluster & database isolation.';
             refreshClusterStats();
             break;
         case 'sql-studio':
@@ -208,8 +269,8 @@ function switchTab(tabId) {
             descElem.textContent = 'Perform zero-latency vector similarity retrieval to construct augmented contexts for LLM prompts.';
             break;
         case 'tables':
-            titleElem.textContent = 'Unified Schema & Tables';
-            descElem.textContent = 'Explore database schemas, column definitions, and raw record contents.';
+            titleElem.textContent = 'Database Schema & Tables';
+            descElem.textContent = 'Explore database schemas, column definitions, and raw record contents per database.';
             loadTables();
             break;
         case 'benchmark':
@@ -294,13 +355,19 @@ async function runSqlQuery() {
     try {
         const res = await fetchWithAuth('/api/sql', {
             method: 'POST',
-            body: JSON.stringify({ sql })
+            body: JSON.stringify({ sql, database: activeDb })
         });
         const result = await res.json();
 
         if (result.success) {
             timeBadge.textContent = `Time: ${result.executionTimeMs.toFixed(2)} ms`;
             planBadge.textContent = result.planStrategy ? `Plan: ${result.planStrategy}` : 'Success';
+
+            if (result.activeDatabase) {
+                activeDb = result.activeDatabase;
+                const selector = document.getElementById('db-context-selector');
+                if (selector) selector.value = activeDb;
+            }
 
             if (result.planStrategy) {
                 planBanner.style.display = 'flex';
@@ -312,6 +379,7 @@ async function runSqlQuery() {
 
             renderQueryResultTable(result.data, result.message);
             refreshClusterStats();
+            loadTables();
         } else {
             planBadge.textContent = 'Error';
             planBanner.style.display = 'none';
@@ -368,19 +436,19 @@ function renderErrorTable(errMsg) {
 
 async function loadTables() {
     try {
-        const res = await fetchWithAuth('/api/tables');
+        const res = await fetchWithAuth(`/api/tables?db=${encodeURIComponent(activeDb)}`);
         const data = await res.json();
         const container = document.getElementById('tables-container');
         if (!container) return;
 
         container.innerHTML = '';
-        if (data.tables) {
+        if (data.tables && data.tables.length > 0) {
             data.tables.forEach(t => {
                 const box = document.createElement('div');
                 box.className = 'panel margin-top';
                 box.innerHTML = `
                     <div class="panel-header">
-                        <h3>Table: <code>${t.tableName}</code> (${t.rowCount} rows)</h3>
+                        <h3>Database: <code>${t.database}</code> | Table: <code>${t.tableName}</code> (${t.rowCount} rows)</h3>
                         <span class="badge cyan">Primary Key: ${t.primaryKey || 'None'}</span>
                     </div>
                     <p style="font-size:13px; color:var(--text-secondary); margin-bottom:12px;">Vector Column: <strong>${t.vectorColumn || 'None'}</strong></p>
@@ -403,6 +471,8 @@ async function loadTables() {
                 `;
                 container.appendChild(box);
             });
+        } else {
+            container.innerHTML = `<div class="panel margin-top"><p style="color:var(--text-secondary)">No tables found in database <code>${activeDb}</code>. Run <code>CREATE TABLE ${activeDb}.sample_table (...)</code> in SQL Studio to create one!</p></div>`;
         }
     } catch (e) {
         console.error('Error loading tables:', e);
@@ -417,20 +487,19 @@ async function renderVectorCanvas() {
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
 
-    // Fetch vector points via SQL
     try {
         const res = await fetchWithAuth('/api/sql', {
             method: 'POST',
-            body: JSON.stringify({ sql: "SELECT id, name, role, city FROM users" })
+            body: JSON.stringify({ sql: "SELECT * FROM users", database: activeDb })
         });
         const result = await res.json();
         if (result.success && result.data) {
-            // Pseudo PCA 2D projection
             vectorPoints = result.data.map((row, idx) => {
-                const seed = row.id.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
+                const idVal = row.id ? row.id.toString() : 'row_' + idx;
+                const seed = idVal.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
                 const x = 150 + (seed * 17) % 600;
                 const y = 80 + (seed * 23) % 300;
-                return { id: row.id, name: row.name, role: row.role, x, y, isSearchTarget: false };
+                return { id: idVal, name: row.name || row.title || idVal, x, y, isSearchTarget: false };
             });
         }
     } catch (e) {
@@ -443,7 +512,6 @@ async function renderVectorCanvas() {
 function drawCanvas(ctx, canvas) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // Draw Grid Lines
     ctx.strokeStyle = '#1e293b';
     ctx.lineWidth = 1;
     for (let x = 0; x < canvas.width; x += 50) {
@@ -453,7 +521,6 @@ function drawCanvas(ctx, canvas) {
         ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke();
     }
 
-    // Draw Vector Points
     vectorPoints.forEach(p => {
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.isSearchTarget ? 10 : 7, 0, 2 * Math.PI);
@@ -479,7 +546,7 @@ async function searchVectorCanvas() {
     try {
         const res = await fetchWithAuth('/api/vector/search', {
             method: 'POST',
-            body: JSON.stringify({ table: 'users', column: 'embedding', query, limit: 3 })
+            body: JSON.stringify({ database: activeDb, table: 'users', column: 'embedding', query, limit: 3 })
         });
         const data = await res.json();
 
@@ -492,18 +559,17 @@ async function searchVectorCanvas() {
             const canvas = document.getElementById('vectorCanvas');
             drawCanvas(canvas.getContext('2d'), canvas);
 
-            // Render list
             const container = document.getElementById('vector-knn-results');
-            container.innerHTML = `<h3>HNSW Nearest Neighbor Results (Latency: ${data.executionTimeMs.toFixed(2)} ms):</h3>`;
+            container.innerHTML = `<h3>HNSW Nearest Neighbor Results in database <code>${activeDb}</code> (Latency: ${data.executionTimeMs.toFixed(2)} ms):</h3>`;
             data.results.forEach(r => {
                 const box = document.createElement('div');
                 box.className = 'panel margin-top';
                 box.innerHTML = `
                     <div style="display:flex; justify-content:space-between;">
-                        <strong>${r.id} - ${r.record ? r.record.name : ''}</strong>
+                        <strong>${r.id} - ${r.record ? (r.record.name || r.record.title) : ''}</strong>
                         <span class="badge cyan">Similarity: ${(r.similarity * 100).toFixed(1)}%</span>
                     </div>
-                    <p style="font-size:13px; color:var(--text-secondary); margin-top:4px;">${r.record ? r.record.bio : ''}</p>
+                    <p style="font-size:13px; color:var(--text-secondary); margin-top:4px;">${r.record ? (r.record.bio || r.record.category) : ''}</p>
                 `;
                 container.appendChild(box);
             });
@@ -522,17 +588,17 @@ async function runBenchmarkTest() {
     try {
         const res = await fetchWithAuth('/api/benchmark', {
             method: 'POST',
-            body: JSON.stringify({ count: parseInt(count) })
+            body: JSON.stringify({ database: activeDb, count: parseInt(count) })
         });
         const data = await res.json();
 
         if (data.success) {
             document.getElementById('bench-results').style.display = 'grid';
             document.getElementById('bench-write-ops').textContent = data.writesPerSec.toLocaleString();
-            document.getElementById('bench-write-time').textContent = `Total Time for ${data.insertedCount} writes: ${data.writeTimeMs} ms`;
+            document.getElementById('bench-write-time').textContent = `Total Time for ${data.insertedCount} writes into '${activeDb}': ${data.writeTimeMs} ms`;
 
             document.getElementById('bench-search-ops').textContent = data.searchesPerSec.toLocaleString();
-            document.getElementById('bench-search-time').textContent = `Total Time for ${data.searchCount} vector searches: ${data.searchTimeMs} ms`;
+            document.getElementById('bench-search-time').textContent = `Total Time for ${data.searchCount} vector searches in '${activeDb}': ${data.searchTimeMs} ms`;
         }
     } catch (e) {
         console.error('Benchmark Error', e);
@@ -550,7 +616,7 @@ async function runRagQuery() {
     try {
         const res = await fetchWithAuth('/api/ai/rag', {
             method: 'POST',
-            body: JSON.stringify({ table: 'users', column: 'embedding', prompt, limit: 3 })
+            body: JSON.stringify({ database: activeDb, table: 'users', column: 'embedding', prompt, limit: 3 })
         });
         const data = await res.json();
 

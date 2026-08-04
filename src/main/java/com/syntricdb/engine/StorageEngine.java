@@ -5,7 +5,6 @@ import com.syntricdb.engine.fulltext.InvertedIndex;
 import com.syntricdb.engine.lsm.LSMTree;
 import com.syntricdb.engine.schema.*;
 import com.syntricdb.engine.stream.StreamEngine;
-import com.syntricdb.engine.vector.DistanceMetric;
 import com.syntricdb.engine.vector.HNSWIndex;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
@@ -13,7 +12,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
@@ -21,12 +19,10 @@ import java.util.concurrent.atomic.AtomicLong;
 public class StorageEngine implements AutoCloseable {
     private static final Logger log = LoggerFactory.getLogger(StorageEngine.class);
 
+    public static final String DEFAULT_DB = "default";
+
     private final Path baseDataDir;
-    private final Map<String, TableSchema> schemas = new ConcurrentHashMap<>();
-    private final Map<String, LSMTree> lsmTrees = new ConcurrentHashMap<>();
-    private final Map<String, HNSWIndex> vectorIndexes = new ConcurrentHashMap<>();
-    private final Map<String, InvertedIndex> invertedIndexes = new ConcurrentHashMap<>();
-    private final Map<String, Map<String, Tuple>> inMemoryTableStore = new ConcurrentHashMap<>();
+    private final Map<String, Database> databases = new ConcurrentHashMap<>();
 
     private final MemoryCacheEngine cacheEngine;
     private final StreamEngine streamEngine;
@@ -39,42 +35,84 @@ public class StorageEngine implements AutoCloseable {
         this.baseDataDir = baseDataDir;
         this.cacheEngine = new MemoryCacheEngine(50000);
         this.streamEngine = new StreamEngine();
+        getOrCreateDatabase(DEFAULT_DB);
     }
 
-    public synchronized void createTable(TableSchema schema) throws IOException {
-        String tableName = schema.getTableName();
-        schemas.put(tableName, schema);
-        inMemoryTableStore.put(tableName, new ConcurrentHashMap<>());
+    // --- DATABASE MANAGEMENT ---
 
-        // LSM Tree initialization (16MB MemTable limit per table)
-        LSMTree lsm = new LSMTree(baseDataDir.resolve("data"), tableName, 16 * 1024 * 1024);
-        lsmTrees.put(tableName, lsm);
-
-        // Crash Recovery: Replay WAL log into MemTable
-        com.syntricdb.engine.lsm.CrashRecoveryManager.recoverFromWAL(baseDataDir.resolve("data"), tableName, new com.syntricdb.engine.lsm.MemTable());
-
-        // Vector Index initialization if vector column exists
-        String vectorCol = schema.getVectorColumn();
-        if (vectorCol != null) {
-            ColumnDef def = schema.getColumn(vectorCol);
-            int dim = def.getVectorDimension() > 0 ? def.getVectorDimension() : 128;
-            HNSWIndex hnsw = new HNSWIndex(dim, DistanceMetric.COSINE);
-            vectorIndexes.put(tableName.toLowerCase() + "." + vectorCol.toLowerCase(), hnsw);
-            log.info("Initialized HNSW Vector Index for {}.{} (Dimension={})", tableName, vectorCol, dim);
+    public synchronized Database createDatabase(String dbName) {
+        if (dbName == null || dbName.isBlank()) {
+            dbName = DEFAULT_DB;
         }
+        String key = dbName.toLowerCase();
+        if (databases.containsKey(key)) {
+            throw new IllegalArgumentException("Database '" + dbName + "' already exists.");
+        }
+        Database db = new Database(key, baseDataDir.resolve("data"));
+        databases.put(key, db);
+        log.info("Database '{}' created successfully.", key);
+        return db;
+    }
 
-        // Inverted index initialization for text columns
-        InvertedIndex invIdx = new InvertedIndex();
-        invertedIndexes.put(tableName, invIdx);
+    public synchronized Database getOrCreateDatabase(String dbName) {
+        if (dbName == null || dbName.isBlank()) {
+            dbName = DEFAULT_DB;
+        }
+        String key = dbName.toLowerCase();
+        return databases.computeIfAbsent(key, k -> new Database(k, baseDataDir.resolve("data")));
+    }
 
-        log.info("Table '{}' created successfully with unified SyntricDB engine.", tableName);
+    public Database getDatabase(String dbName) {
+        if (dbName == null || dbName.isBlank()) {
+            dbName = DEFAULT_DB;
+        }
+        return databases.get(dbName.toLowerCase());
+    }
+
+    public synchronized void dropDatabase(String dbName) {
+        if (dbName == null || dbName.isBlank()) return;
+        String key = dbName.toLowerCase();
+        if (DEFAULT_DB.equalsIgnoreCase(key)) {
+            throw new IllegalArgumentException("Cannot drop default system database 'default'.");
+        }
+        Database db = databases.remove(key);
+        if (db != null) {
+            db.close();
+            log.info("Database '{}' dropped successfully.", key);
+        }
+    }
+
+    public List<String> listDatabases() {
+        List<String> list = new ArrayList<>(databases.keySet());
+        Collections.sort(list);
+        return list;
+    }
+
+    // --- TABLE MANAGEMENT ---
+
+    public synchronized void createTable(TableSchema schema) throws IOException {
+        createTable(DEFAULT_DB, schema);
+    }
+
+    public synchronized void createTable(String dbName, TableSchema schema) throws IOException {
+        Database db = getOrCreateDatabase(dbName);
+        db.createTable(schema);
     }
 
     public void insert(String tableName, Tuple tuple) throws IOException {
+        insert(DEFAULT_DB, tableName, tuple);
+    }
+
+    public void insert(String dbName, String tableName, Tuple tuple) throws IOException {
+        Database db = getDatabase(dbName);
+        if (db == null) {
+            throw new IllegalArgumentException("Database '" + dbName + "' does not exist.");
+        }
+
         tableName = tableName.toLowerCase();
-        TableSchema schema = schemas.get(tableName);
+        TableSchema schema = db.getSchema(tableName);
         if (schema == null) {
-            throw new IllegalArgumentException("Table '" + tableName + "' does not exist.");
+            throw new IllegalArgumentException("Table '" + tableName + "' does not exist in database '" + dbName + "'.");
         }
 
         String pkCol = schema.getPrimaryKeyColumn();
@@ -91,20 +129,20 @@ public class StorageEngine implements AutoCloseable {
         byte[] serializedBytes = jsonMapper.writeValueAsBytes(tuple.asMap());
 
         // 1. Write to LSM Tree (WAL + MemTable + SSTable)
-        LSMTree lsm = lsmTrees.get(tableName);
+        LSMTree lsm = db.getLsmTrees().get(tableName);
         if (lsm != null) {
             lsm.put(keyStr, serializedBytes);
         }
 
-        // 2. Write to in-memory store for instant zero-latency query execution
-        inMemoryTableStore.get(tableName).put(keyStr, tuple);
+        // 2. Write to in-memory store
+        db.getInMemoryTableStore().get(tableName).put(keyStr, tuple);
 
         // 3. Index vector columns in HNSW index
         String vectorCol = schema.getVectorColumn();
         if (vectorCol != null) {
             float[] vec = tuple.getVector(vectorCol);
             if (vec != null) {
-                HNSWIndex hnsw = vectorIndexes.get(tableName.toLowerCase() + "." + vectorCol.toLowerCase());
+                HNSWIndex hnsw = db.getVectorIndex(tableName, vectorCol);
                 if (hnsw != null) {
                     hnsw.insert(keyStr, vec);
                 }
@@ -112,7 +150,7 @@ public class StorageEngine implements AutoCloseable {
         }
 
         // 4. Index text columns in Inverted Index
-        InvertedIndex invIdx = invertedIndexes.get(tableName);
+        InvertedIndex invIdx = db.getInvertedIndexes().get(tableName);
         if (invIdx != null) {
             StringBuilder textAcc = new StringBuilder();
             for (ColumnDef col : schema.getColumnList()) {
@@ -127,37 +165,42 @@ public class StorageEngine implements AutoCloseable {
         }
 
         // 5. Invalidate hot cache & record metric
-        cacheEngine.invalidate(tableName + ":" + keyStr);
+        cacheEngine.invalidate(db.getName() + ":" + tableName + ":" + keyStr);
         writeOpsCount.incrementAndGet();
 
         // 6. Stream notification trigger
         Map<String, Object> streamEvent = new HashMap<>(tuple.asMap());
+        streamEvent.put("_db", db.getName());
         streamEvent.put("_table", tableName);
         streamEvent.put("_op", "INSERT");
-        streamEngine.publish("table_" + tableName, streamEvent);
+        streamEngine.publish("table_" + db.getName() + "_" + tableName, streamEvent);
     }
 
     public Tuple getByPrimaryKey(String tableName, String primaryKey) throws IOException {
+        return getByPrimaryKey(DEFAULT_DB, tableName, primaryKey);
+    }
+
+    public Tuple getByPrimaryKey(String dbName, String tableName, String primaryKey) throws IOException {
+        Database db = getDatabase(dbName);
+        if (db == null) return null;
+
         tableName = tableName.toLowerCase();
         readOpsCount.incrementAndGet();
 
-        // Cache check
-        String cacheKey = tableName + ":" + primaryKey;
+        String cacheKey = db.getName() + ":" + tableName + ":" + primaryKey;
         Object cached = cacheEngine.get(cacheKey);
         if (cached instanceof Tuple) {
             return (Tuple) cached;
         }
 
-        // Memory Store check
-        Map<String, Tuple> store = inMemoryTableStore.get(tableName);
+        Map<String, Tuple> store = db.getInMemoryTableStore().get(tableName);
         if (store != null && store.containsKey(primaryKey)) {
             Tuple tuple = store.get(primaryKey);
             cacheEngine.put(cacheKey, tuple);
             return tuple;
         }
 
-        // LSM Tree search
-        LSMTree lsm = lsmTrees.get(tableName);
+        LSMTree lsm = db.getLsmTrees().get(tableName);
         if (lsm != null) {
             byte[] bytes = lsm.get(primaryKey);
             if (bytes != null) {
@@ -172,27 +215,58 @@ public class StorageEngine implements AutoCloseable {
     }
 
     public List<Tuple> scanAll(String tableName) {
+        return scanAll(DEFAULT_DB, tableName);
+    }
+
+    public List<Tuple> scanAll(String dbName, String tableName) {
+        Database db = getDatabase(dbName);
+        if (db == null) return Collections.emptyList();
+
         tableName = tableName.toLowerCase();
         readOpsCount.incrementAndGet();
-        Map<String, Tuple> store = inMemoryTableStore.get(tableName);
+        Map<String, Tuple> store = db.getInMemoryTableStore().get(tableName);
         if (store == null) return Collections.emptyList();
         return new ArrayList<>(store.values());
     }
 
     public TableSchema getSchema(String tableName) {
-        return schemas.get(tableName.toLowerCase());
+        return getSchema(DEFAULT_DB, tableName);
+    }
+
+    public TableSchema getSchema(String dbName, String tableName) {
+        Database db = getDatabase(dbName);
+        if (db == null) return null;
+        return db.getSchema(tableName);
     }
 
     public Map<String, TableSchema> getAllSchemas() {
-        return Collections.unmodifiableMap(schemas);
+        return getAllSchemas(DEFAULT_DB);
+    }
+
+    public Map<String, TableSchema> getAllSchemas(String dbName) {
+        Database db = getDatabase(dbName);
+        if (db == null) return Collections.emptyMap();
+        return db.getSchemas();
     }
 
     public HNSWIndex getVectorIndex(String tableName, String columnName) {
-        return vectorIndexes.get(tableName.toLowerCase() + "." + columnName.toLowerCase());
+        return getVectorIndex(DEFAULT_DB, tableName, columnName);
+    }
+
+    public HNSWIndex getVectorIndex(String dbName, String tableName, String columnName) {
+        Database db = getDatabase(dbName);
+        if (db == null) return null;
+        return db.getVectorIndex(tableName, columnName);
     }
 
     public InvertedIndex getInvertedIndex(String tableName) {
-        return invertedIndexes.get(tableName.toLowerCase());
+        return getInvertedIndex(DEFAULT_DB, tableName);
+    }
+
+    public InvertedIndex getInvertedIndex(String dbName, String tableName) {
+        Database db = getDatabase(dbName);
+        if (db == null) return null;
+        return db.getInvertedIndex(tableName);
     }
 
     public MemoryCacheEngine getCacheEngine() {
@@ -208,8 +282,8 @@ public class StorageEngine implements AutoCloseable {
 
     @Override
     public void close() throws Exception {
-        for (LSMTree lsm : lsmTrees.values()) {
-            lsm.close();
+        for (Database db : databases.values()) {
+            db.close();
         }
     }
 }

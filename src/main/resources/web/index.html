@@ -65,6 +65,13 @@
                     <p id="page-desc">Real-time status of unified LSM storage, HNSW vector index, Raft cluster & cache engine.</p>
                 </div>
                 <div class="header-actions">
+                    <div class="db-selector-container">
+                        <label for="db-context-selector">🗄️ Database: </label>
+                        <select id="db-context-selector" onchange="onDatabaseContextChange()">
+                            <option value="default">default</option>
+                        </select>
+                        <button class="btn btn-secondary btn-sm" onclick="promptCreateDatabase()">+ New DB</button>
+                    </div>
                     <button class="btn btn-secondary" onclick="refreshClusterStats()">↻ Refresh Metrics</button>
                     <button class="btn btn-primary" onclick="switchTab('sql-studio')">+ New SQL Query</button>
                 </div>

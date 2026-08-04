@@ -41,10 +41,14 @@ public class SyntricDBServer {
     public void start(boolean startCli) throws Exception {
         log.info("Starting SyntricDB AI-Native Database Server...");
 
-        // 1. Initialize Default Schema
+        // 1. Initialize Default Database & Schema
         queryExecutor.execute("CREATE TABLE users (id VARCHAR PRIMARY KEY, name VARCHAR, city VARCHAR, age INT, role VARCHAR, bio VARCHAR, embedding FLOAT_VECTOR(128))");
 
-        // 2. Seed Initial Sample Data with Embeddings & AI Functions
+        // 2. Initialize Sample Secondary Database 'production'
+        queryExecutor.execute("CREATE DATABASE production");
+        queryExecutor.execute("CREATE TABLE production.products (id VARCHAR PRIMARY KEY, title VARCHAR, category VARCHAR, price DOUBLE, embedding FLOAT_VECTOR(128))");
+
+        // 3. Seed Initial Sample Data with Embeddings & AI Functions
         seedSampleData();
 
         // 3. Start Netty HTTP API Server & Web Management Console
@@ -87,7 +91,24 @@ public class SyntricDBServer {
             tuple.set("role", u[4]);
             tuple.set("bio", u[5]);
             tuple.set("embedding", aiEngine.aiEmbed(u[6].toString()));
-            storageEngine.insert("users", tuple);
+            storageEngine.insert("default", "users", tuple);
+        }
+
+        // Seed products into 'production' database
+        Object[][] productsData = new Object[][]{
+            {"prod_01", "SyntricDB Enterprise Cluster", "Database", 2999.0, "AI-Native Vector Database"},
+            {"prod_02", "Neural Embedder Accelerator", "AI Hardware", 1499.0, "High-Speed Vector Embedding Unit"},
+            {"prod_03", "Raft Consensus Inspector", "Developer Tool", 499.0, "Distributed State Inspector"}
+        };
+
+        for (Object[] p : productsData) {
+            Tuple tuple = new Tuple();
+            tuple.set("id", p[0]);
+            tuple.set("title", p[1]);
+            tuple.set("category", p[2]);
+            tuple.set("price", p[3]);
+            tuple.set("embedding", aiEngine.aiEmbed(p[4].toString()));
+            storageEngine.insert("production", "products", tuple);
         }
 
         // Seed stream event topic

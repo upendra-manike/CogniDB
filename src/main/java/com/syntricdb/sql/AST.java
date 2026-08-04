@@ -157,4 +157,46 @@ public class AST {
         public String getTopic() { return topic; }
         public Map<String, Object> getPayload() { return payload; }
     }
+
+    public static class CreateDatabaseStatement implements Statement {
+        private final String dbName;
+
+        public CreateDatabaseStatement(String dbName) {
+            this.dbName = dbName.toLowerCase();
+        }
+
+        public String getDbName() { return dbName; }
+    }
+
+    public static class DropDatabaseStatement implements Statement {
+        private final String dbName;
+
+        public DropDatabaseStatement(String dbName) {
+            this.dbName = dbName.toLowerCase();
+        }
+
+        public String getDbName() { return dbName; }
+    }
+
+    public static class UseDatabaseStatement implements Statement {
+        private final String dbName;
+
+        public UseDatabaseStatement(String dbName) {
+            this.dbName = dbName.toLowerCase();
+        }
+
+        public String getDbName() { return dbName; }
+    }
+
+    public static class ShowDatabasesStatement implements Statement {}
+
+    public static class ShowTablesStatement implements Statement {
+        private final String dbName;
+
+        public ShowTablesStatement(String dbName) {
+            this.dbName = dbName != null ? dbName.toLowerCase() : null;
+        }
+
+        public String getDbName() { return dbName; }
+    }
 }

@@ -150,12 +150,33 @@ public class HTTPHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
                 }
             }
 
-            if ("/api/sql".equals(uri) && req.method() == HttpMethod.POST) {
+            if ("/api/databases".equals(uri) && req.method() == HttpMethod.GET) {
+                responseMap.put("success", true);
+                responseMap.put("activeDatabase", queryExecutor.getActiveDatabase());
+                responseMap.put("databases", storageEngine.listDatabases());
+
+            } else if ("/api/databases".equals(uri) && req.method() == HttpMethod.POST) {
+                Map<String, Object> reqJson = jsonMapper.readValue(body, Map.class);
+                String dbName = reqJson.get("name").toString();
+                storageEngine.createDatabase(dbName);
+                responseMap.put("success", true);
+                responseMap.put("message", "Database '" + dbName + "' created successfully.");
+
+            } else if ("/api/databases".equals(uri) && req.method() == HttpMethod.DELETE) {
+                Map<String, Object> reqJson = jsonMapper.readValue(body, Map.class);
+                String dbName = reqJson.get("name").toString();
+                storageEngine.dropDatabase(dbName);
+                responseMap.put("success", true);
+                responseMap.put("message", "Database '" + dbName + "' dropped successfully.");
+
+            } else if ("/api/sql".equals(uri) && req.method() == HttpMethod.POST) {
                 Map<String, Object> reqJson = jsonMapper.readValue(body, Map.class);
                 String sql = reqJson.get("sql").toString();
-                QueryExecutor.QueryResult res = queryExecutor.execute(sql);
+                String targetDb = reqJson.containsKey("database") ? reqJson.get("database").toString() : queryExecutor.getActiveDatabase();
+                QueryExecutor.QueryResult res = queryExecutor.execute(sql, targetDb);
 
                 responseMap.put("success", true);
+                responseMap.put("activeDatabase", queryExecutor.getActiveDatabase());
                 responseMap.put("message", res.getMessage());
                 responseMap.put("executionTimeMs", res.getExecutionTimeMs());
                 responseMap.put("rowCount", res.getRows().size());
@@ -168,14 +189,15 @@ public class HTTPHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
 
             } else if ("/api/vector/search".equals(uri) && req.method() == HttpMethod.POST) {
                 Map<String, Object> reqJson = jsonMapper.readValue(body, Map.class);
+                String targetDb = reqJson.getOrDefault("database", queryExecutor.getActiveDatabase()).toString();
                 String table = reqJson.get("table").toString();
                 String column = reqJson.get("column").toString();
                 String queryText = reqJson.get("query").toString();
                 int limit = reqJson.containsKey("limit") ? Integer.parseInt(reqJson.get("limit").toString()) : 5;
 
-                HNSWIndex hnsw = storageEngine.getVectorIndex(table, column);
+                HNSWIndex hnsw = storageEngine.getVectorIndex(targetDb, table, column);
                 if (hnsw == null) {
-                    throw new IllegalArgumentException("Vector index on " + table + "." + column + " not found.");
+                    throw new IllegalArgumentException("Vector index on " + targetDb + "." + table + "." + column + " not found.");
                 }
 
                 float[] queryVec = aiEngine.aiEmbed(queryText, hnsw.getDimension());
@@ -189,7 +211,7 @@ public class HTTPHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
                     row.put("id", r.getId());
                     row.put("similarity", r.getSimilarity());
                     row.put("distance", r.getDistance());
-                    Tuple t = storageEngine.getByPrimaryKey(table, r.getId());
+                    Tuple t = storageEngine.getByPrimaryKey(targetDb, table, r.getId());
                     if (t != null) {
                         row.put("record", t.asMap());
                     }
@@ -203,6 +225,7 @@ public class HTTPHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
 
             } else if ("/api/ai/rag".equals(uri) && req.method() == HttpMethod.POST) {
                 Map<String, Object> reqJson = jsonMapper.readValue(body, Map.class);
+                String targetDb = reqJson.getOrDefault("database", queryExecutor.getActiveDatabase()).toString();
                 String table = reqJson.getOrDefault("table", "users").toString();
                 String column = reqJson.getOrDefault("column", "embedding").toString();
                 String prompt = reqJson.get("prompt").toString();
@@ -230,27 +253,38 @@ public class HTTPHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
                     nodeList.add(nm);
                 }
                 responseMap.put("nodes", nodeList);
+                responseMap.put("databases", storageEngine.listDatabases());
+                responseMap.put("activeDatabase", queryExecutor.getActiveDatabase());
                 responseMap.put("writeOps", storageEngine.getWriteOpsCount());
                 responseMap.put("readOps", storageEngine.getReadOpsCount());
                 responseMap.put("cacheHitRate", storageEngine.getCacheEngine().getHitRate() * 100.0);
-                responseMap.put("tableCount", storageEngine.getAllSchemas().size());
+                responseMap.put("tableCount", storageEngine.getAllSchemas(queryExecutor.getActiveDatabase()).size());
 
             } else if ("/api/tables".equals(uri) && req.method() == HttpMethod.GET) {
+                String targetDb = queryExecutor.getActiveDatabase();
+                QueryStringDecoder decoder = new QueryStringDecoder(uri);
+                if (decoder.parameters().containsKey("db")) {
+                    targetDb = decoder.parameters().get("db").get(0);
+                }
+
                 responseMap.put("success", true);
+                responseMap.put("database", targetDb);
                 List<Map<String, Object>> tableList = new ArrayList<>();
-                for (var schema : storageEngine.getAllSchemas().values()) {
+                for (var schema : storageEngine.getAllSchemas(targetDb).values()) {
                     Map<String, Object> tm = new LinkedHashMap<>();
+                    tm.put("database", targetDb);
                     tm.put("tableName", schema.getTableName());
                     tm.put("primaryKey", schema.getPrimaryKeyColumn());
                     tm.put("vectorColumn", schema.getVectorColumn());
                     tm.put("columns", schema.getColumnList());
-                    tm.put("rowCount", storageEngine.scanAll(schema.getTableName()).size());
+                    tm.put("rowCount", storageEngine.scanAll(targetDb, schema.getTableName()).size());
                     tableList.add(tm);
                 }
                 responseMap.put("tables", tableList);
 
             } else if ("/api/benchmark".equals(uri) && req.method() == HttpMethod.POST) {
                 Map<String, Object> reqJson = jsonMapper.readValue(body, Map.class);
+                String targetDb = reqJson.getOrDefault("database", queryExecutor.getActiveDatabase()).toString();
                 int count = reqJson.containsKey("count") ? Integer.parseInt(reqJson.get("count").toString()) : 1000;
 
                 long startWrite = System.currentTimeMillis();
@@ -261,7 +295,7 @@ public class HTTPHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
                     t.set("city", i % 2 == 0 ? "Hyderabad" : "Bengaluru");
                     t.set("age", 20 + (i % 30));
                     t.set("embedding", aiEngine.aiEmbed("Software Engineer Record " + i));
-                    storageEngine.insert("users", t);
+                    storageEngine.insert(targetDb, "users", t);
                 }
                 long writeTimeMs = Math.max(1, System.currentTimeMillis() - startWrite);
                 double writesPerSec = (count * 1000.0) / writeTimeMs;
@@ -269,12 +303,13 @@ public class HTTPHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
                 long startSearch = System.currentTimeMillis();
                 int searchCount = Math.min(count, 500);
                 for (int i = 0; i < searchCount; i++) {
-                    queryExecutor.execute("SELECT * FROM users WHERE embedding SIMILAR TO 'Engineer' TOP 5");
+                    queryExecutor.execute("SELECT * FROM users WHERE embedding SIMILAR TO 'Engineer' TOP 5", targetDb);
                 }
                 long searchTimeMs = Math.max(1, System.currentTimeMillis() - startSearch);
                 double searchesPerSec = (searchCount * 1000.0) / searchTimeMs;
 
                 responseMap.put("success", true);
+                responseMap.put("database", targetDb);
                 responseMap.put("insertedCount", count);
                 responseMap.put("writeTimeMs", writeTimeMs);
                 responseMap.put("writesPerSec", (long) writesPerSec);

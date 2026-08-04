@@ -100,15 +100,17 @@ public class SyntricCLI {
         }
     }
 
+    private String currentDb = "default";
+
     public void startRepl(Scanner scanner) {
         System.out.println("✅ Authenticated & Connected!");
-        System.out.println("Type SQL statements, vector queries, or 'exit' / 'quit' to exit.\n");
+        System.out.println("Type SQL statements, vector queries, 'USE <db>', or 'exit' / 'quit' to exit.\n");
 
-        String displayUser = username != null ? username : "local";
+        String displayUser = username != null ? username : "admin";
         String displayHost = inProcessExecutor != null ? "embedded" : extractHost(serverUrl);
 
         while (true) {
-            System.out.print("syntricdb [" + displayUser + "@" + displayHost + "]> ");
+            System.out.print("syntricdb (" + currentDb + ") [" + displayUser + "@" + displayHost + "]> ");
             if (!scanner.hasNextLine()) break;
             String line = scanner.nextLine().trim();
 
@@ -118,6 +120,11 @@ public class SyntricCLI {
             }
 
             if (line.isBlank()) continue;
+
+            if (line.toUpperCase().startsWith("USE ")) {
+                String dbName = line.substring(4).trim().replaceAll(";$", "");
+                currentDb = dbName.toLowerCase();
+            }
 
             if (inProcessExecutor != null) {
                 executeDirect(line);
@@ -129,7 +136,8 @@ public class SyntricCLI {
 
     private void executeDirect(String sql) {
         try {
-            QueryExecutor.QueryResult result = inProcessExecutor.execute(sql);
+            QueryExecutor.QueryResult result = inProcessExecutor.execute(sql, currentDb);
+            this.currentDb = inProcessExecutor.getActiveDatabase();
             System.out.println("STATUS: " + result.getMessage() + " (Time: " + String.format("%.2f", result.getExecutionTimeMs()) + " ms)");
             if (result.getExecutionPlan() != null) {
                 System.out.println("PLAN: [" + result.getExecutionPlan().getStrategy() + "] " + result.getExecutionPlan().getDescription());
@@ -158,11 +166,11 @@ public class SyntricCLI {
             conn.setRequestProperty("Content-Type", "application/json");
             conn.setRequestProperty("User-Agent", "SyntricCLI/1.0");
 
-            String authHeader = "Bearer " + username + ":" + password;
-            conn.setRequestProperty("Authorization", authHeader);
+            String token = Base64.getEncoder().encodeToString(((username != null ? username : "admin") + ":" + (password != null ? password : "syntricdb_secret_pass")).getBytes(StandardCharsets.UTF_8));
+            conn.setRequestProperty("Authorization", "Basic " + token);
             conn.setDoOutput(true);
 
-            Map<String, Object> reqMap = Map.of("sql", sql);
+            Map<String, Object> reqMap = Map.of("sql", sql, "database", currentDb);
             byte[] body = jsonMapper.writeValueAsBytes(reqMap);
 
             try (OutputStream os = conn.getOutputStream()) {
@@ -174,6 +182,9 @@ public class SyntricCLI {
             Map<String, Object> respMap = jsonMapper.readValue(is, Map.class);
 
             if (Boolean.TRUE.equals(respMap.get("success"))) {
+                if (respMap.containsKey("activeDatabase")) {
+                    this.currentDb = respMap.get("activeDatabase").toString();
+                }
                 System.out.println("STATUS: " + respMap.get("message") + " (Time: " + String.format("%.2f", respMap.get("executionTimeMs")) + " ms)");
                 if (respMap.containsKey("planStrategy")) {
                     System.out.println("PLAN: [" + respMap.get("planStrategy") + "] " + respMap.get("planDescription"));

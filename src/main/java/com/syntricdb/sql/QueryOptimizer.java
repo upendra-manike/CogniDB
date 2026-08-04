@@ -11,9 +11,21 @@ public class QueryOptimizer {
     }
 
     public ExecutionPlan optimize(AST.SelectStatement stmt) {
-        TableSchema schema = storageEngine.getSchema(stmt.getTableName());
+        return optimize(StorageEngine.DEFAULT_DB, stmt);
+    }
+
+    public ExecutionPlan optimize(String dbName, AST.SelectStatement stmt) {
+        String tableName = stmt.getTableName();
+        String targetDb = dbName;
+        if (tableName.contains(".")) {
+            String[] parts = tableName.split("\\.", 2);
+            targetDb = parts[0];
+            tableName = parts[1];
+        }
+
+        TableSchema schema = storageEngine.getSchema(targetDb, tableName);
         if (schema == null) {
-            throw new IllegalArgumentException("Table '" + stmt.getTableName() + "' does not exist.");
+            throw new IllegalArgumentException("Table '" + tableName + "' does not exist in database '" + targetDb + "'.");
         }
 
         // 1. Check if query is vector similarity search
