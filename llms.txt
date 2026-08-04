@@ -1,9 +1,9 @@
-# CogniDB: AI-Native Unified Database Engine
+# SyntricDB: AI-Native Unified Database Engine
 
-> CogniDB is an open-source, ultra-high-performance AI-native unified database engine written in Java 21 LTS with Generational ZGC. It unifies relational SQL, HNSW vector similarity search, key-value caching, full-text search, and in-engine AI RAG into a single, low-latency process.
+> SyntricDB is an open-source, ultra-high-performance AI-native unified database engine written in Java 21 LTS with Generational ZGC. It unifies relational SQL, HNSW vector similarity search, key-value caching, full-text search, and in-engine AI RAG into a single, low-latency process.
 
 ## Core Value Proposition
-CogniDB solves "database sprawl" by replacing complex multi-database stacks (PostgreSQL + Pinecone/Milvus + Redis + Kafka) with a single unified engine.
+SyntricDB solves "database sprawl" by replacing complex multi-database stacks (PostgreSQL + Pinecone/Milvus + Redis + Kafka) with a single unified engine.
 
 ## Key Capabilities
 - **Unified Querying**: Execute relational SQL with vector similarity search (`embedding SIMILAR TO 'query' TOP 10`) in a single SQL statement.
@@ -19,9 +19,9 @@ CogniDB solves "database sprawl" by replacing complex multi-database stacks (Pos
 - REST API Endpoint: `POST http://localhost:8080/api/sql`
 - Header: `Content-Type: application/json`
 - Payload: `{"sql": "<SQL_STATEMENT>"}`
-- JDBC Connection String: `jdbc:cognidb://localhost:8080/default`
+- JDBC Connection String: `jdbc:syntricdb://localhost:8080/default`
 
 ## Code Examples Repository
-- GitHub Repository: https://github.com/upendra-manike/CogniDB
-- Multi-Language Examples: https://github.com/upendra-manike/CogniDB_Examples
+- GitHub Repository: https://github.com/upendra-manike/SyntricDB
+- Multi-Language Examples: https://github.com/upendra-manike/SyntricDB_Examples
 - Video Demo: https://www.youtube.com/watch?v=8xxpJwloe30

@@ -1,28 +1,28 @@
-# 📺 CogniDB YouTube Video Launch Kit
+# 📺 SyntricDB YouTube Video Launch Kit
 
 > 🎬 **Official YouTube Video Demo**: 👉 **[https://www.youtube.com/watch?v=8xxpJwloe30](https://www.youtube.com/watch?v=8xxpJwloe30)**
 
-Use this production-ready kit to publish your demo video (`cognidb_studio_tab_by_tab_demo.mp4`) to **YouTube** for maximum developer reach and engagement!
+Use this production-ready kit to publish your demo video (`syntricdb_studio_tab_by_tab_demo.mp4`) to **YouTube** for maximum developer reach and engagement!
 
 ---
 
 ## 📌 YouTube Video Titles (Choose One)
 
-1. **Building an AI-Native Database Engine from Scratch in Java 21 | CogniDB Studio Demo** *(Recommended)*
+1. **Building an AI-Native Database Engine from Scratch in Java 21 | SyntricDB Studio Demo** *(Recommended)*
 2. **Goodbye Database Sprawl! Relational SQL + HNSW Vector Search + Real-Time Streaming in ONE Engine**
-3. **CogniDB: The Open-Source AI-Native Unified Database | 1-Minute Full Feature Walkthrough**
-4. **How CogniDB Replaces Postgres + Pinecone + Redis + Kafka with a Single Java 21 Process**
+3. **SyntricDB: The Open-Source AI-Native Unified Database | 1-Minute Full Feature Walkthrough**
+4. **How SyntricDB Replaces Postgres + Pinecone + Redis + Kafka with a Single Java 21 Process**
 
 ---
 
 ## 📝 YouTube Video Description (Copy & Paste)
 
 ```markdown
-⚡ CogniDB is an open-source, AI-native unified database engine built from the ground up in Java 21 LTS with Generational ZGC. 
+⚡ SyntricDB is an open-source, AI-native unified database engine built from the ground up in Java 21 LTS with Generational ZGC. 
 
-Instead of database sprawl—stitching together PostgreSQL for relational SQL, Pinecone/Milvus for vector search, Redis for caching, and Kafka for streaming—CogniDB unifies everything into a single, high-performance engine.
+Instead of database sprawl—stitching together PostgreSQL for relational SQL, Pinecone/Milvus for vector search, Redis for caching, and Kafka for streaming—SyntricDB unifies everything into a single, high-performance engine.
 
-⭐ Star CogniDB on GitHub: https://github.com/upendra-manike/CogniDB
+⭐ Star SyntricDB on GitHub: https://github.com/upendra-manike/SyntricDB
 
 ---
 
@@ -39,13 +39,13 @@ Instead of database sprawl—stitching together PostgreSQL for relational SQL, P
 🚀 QUICK START INSTALLATION (1-Line Installers):
 
 macOS:
-curl -fsSL https://raw.githubusercontent.com/upendra-manike/CogniDB/main/deploy/mac/install_mac.sh | bash
+curl -fsSL https://raw.githubusercontent.com/upendra-manike/SyntricDB/main/deploy/mac/install_mac.sh | bash
 
 Linux / AWS EC2:
-curl -fsSL https://raw.githubusercontent.com/upendra-manike/CogniDB/main/deploy/aws_ec2_install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/upendra-manike/SyntricDB/main/deploy/aws_ec2_install.sh | bash
 
 Windows (PowerShell):
-iwr -useb https://raw.githubusercontent.com/upendra-manike/CogniDB/main/deploy/windows/install_windows.ps1 | iex
+iwr -useb https://raw.githubusercontent.com/upendra-manike/SyntricDB/main/deploy/windows/install_windows.ps1 | iex
 
 ---
 
@@ -57,7 +57,7 @@ iwr -useb https://raw.githubusercontent.com/upendra-manike/CogniDB/main/deploy/w
 • Web Studio Console: Visual query editor, 2D vector scatter plot, and live IOPS telemetry
 
 💬 Questions or contributions? Open an issue or discussion on GitHub!
-#CogniDB #Database #AI #Java21 #VectorSearch #PostgreSQL #SpringBoot #OpenSource
+#SyntricDB #Database #AI #Java21 #VectorSearch #PostgreSQL #SpringBoot #OpenSource
 ```
 
 ---
@@ -65,7 +65,7 @@ iwr -useb https://raw.githubusercontent.com/upendra-manike/CogniDB/main/deploy/w
 ## 🏷️ YouTube Tags (Copy & Paste into Video Tags Field)
 
 ```text
-CogniDB, AI native database, vector database, Java 21, HNSW vector search, unified database, PostgreSQL alternative, Pinecone alternative, Spring Boot JPA vector search, database engine architecture, Netty server, LSM tree, open source database, RAG database, database benchmarks, software engineering
+SyntricDB, AI native database, vector database, Java 21, HNSW vector search, unified database, PostgreSQL alternative, Pinecone alternative, Spring Boot JPA vector search, database engine architecture, Netty server, LSM tree, open source database, RAG database, database benchmarks, software engineering
 ```
 
 ---
@@ -73,12 +73,12 @@ CogniDB, AI native database, vector database, Java 21, HNSW vector search, unifi
 ## 📌 YouTube Pinned Comment (Copy & Paste)
 
 ```text
-🚀 Try CogniDB locally in 30 seconds! 
+🚀 Try SyntricDB locally in 30 seconds! 
 
 Quick Install for Mac/Linux:
-curl -fsSL https://raw.githubusercontent.com/upendra-manike/CogniDB/main/deploy/mac/install_mac.sh | bash
+curl -fsSL https://raw.githubusercontent.com/upendra-manike/SyntricDB/main/deploy/mac/install_mac.sh | bash
 
-⭐ Star the repo on GitHub: https://github.com/upendra-manike/CogniDB
+⭐ Star the repo on GitHub: https://github.com/upendra-manike/SyntricDB
 Let me know in the comments what features you'd like to see next! 👇
 ```
 

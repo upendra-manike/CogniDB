@@ -1,13 +1,13 @@
 import requests
 import json
 
-COGNIDB_URL = "http://localhost:8080/api/sql"
+SYNTRICDB_URL = "http://localhost:8080/api/sql"
 
 def execute_query(sql_statement):
     headers = {"Content-Type": "application/json"}
     payload = {"sql": sql_statement}
     
-    response = requests.post(COGNIDB_URL, json=payload, headers=headers)
+    response = requests.post(SYNTRICDB_URL, json=payload, headers=headers)
     if response.status_code == 200:
         return response.json()
     else:
@@ -15,7 +15,7 @@ def execute_query(sql_statement):
 
 def main():
     print("=================================================")
-    print("🐍 CogniDB Python SDK & REST Integration Demo")
+    print("🐍 SyntricDB Python SDK & REST Integration Demo")
     print("=================================================")
 
     # 1. Create Table
@@ -58,13 +58,13 @@ def main():
     TOP 1;
     """
     search_res = execute_query(vector_sql)
-    print("\n🔍 CogniDB Hybrid Vector Search Results:")
+    print("\n🔍 SyntricDB Hybrid Vector Search Results:")
     print(json.dumps(search_res, indent=2))
 
     # 4. Native In-Engine RAG Query
     rag_sql = "SELECT AI_RAG('Who is our lead engineer for LLM fine-tuning?');"
     rag_res = execute_query(rag_sql)
-    print("\n🤖 CogniDB Native AI RAG Response:")
+    print("\n🤖 SyntricDB Native AI RAG Response:")
     print(json.dumps(rag_res, indent=2))
 
     print("=================================================")

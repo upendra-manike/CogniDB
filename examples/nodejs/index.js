@@ -1,9 +1,9 @@
 const fetch = require('node-fetch');
 
-const COGNIDB_URL = 'http://localhost:8080/api/sql';
+const SYNTRICDB_URL = 'http://localhost:8080/api/sql';
 
 async function executeQuery(sql) {
-    const response = await fetch(COGNIDB_URL, {
+    const response = await fetch(SYNTRICDB_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ sql })
@@ -17,7 +17,7 @@ async function executeQuery(sql) {
 
 async function main() {
     console.log('=================================================');
-    console.log('💚 CogniDB Node.js Integration Demo');
+    console.log('💚 SyntricDB Node.js Integration Demo');
     console.log('=================================================');
 
     try {

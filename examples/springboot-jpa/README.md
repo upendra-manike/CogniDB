@@ -1,14 +1,14 @@
-# 🍃 CogniDB Spring Boot & JPA Integration Example
+# 🍃 SyntricDB Spring Boot & JPA Integration Example
 
-This example demonstrates how to integrate **CogniDB** into a Spring Boot 3 application using standard **Spring Data JPA**, `@Entity`, `@Repository`, `@Transactional`, and native CogniDB `@Query` vector similarity methods.
+This example demonstrates how to integrate **SyntricDB** into a Spring Boot 3 application using standard **Spring Data JPA**, `@Entity`, `@Repository`, `@Transactional`, and native SyntricDB `@Query` vector similarity methods.
 
 ---
 
 ## 🛠️ How to Run
 
-1. Make sure CogniDB is running locally:
+1. Make sure SyntricDB is running locally:
    ```bash
-   cognidb start
+   syntricdb start
    ```
 
 2. Navigate to this directory:
@@ -25,6 +25,6 @@ This example demonstrates how to integrate **CogniDB** into a Spring Boot 3 appl
 
 ## 💻 Code Breakdown
 
-- **`Product.java`**: Standard JPA `@Entity` mapped to CogniDB unified table.
-- **`ProductRepository.java`**: Spring Data JPA repository extending `JpaRepository` with native CogniDB `@Query` annotations for `embedding SIMILAR TO` and `AI_RAG(...)`.
+- **`Product.java`**: Standard JPA `@Entity` mapped to SyntricDB unified table.
+- **`ProductRepository.java`**: Spring Data JPA repository extending `JpaRepository` with native SyntricDB `@Query` annotations for `embedding SIMILAR TO` and `AI_RAG(...)`.
 - **`ProductService.java`**: Spring `@Service` bean using standard `@Transactional` annotations.

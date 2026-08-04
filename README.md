@@ -1,29 +1,29 @@
-# ⚡ CogniDB: Next-Generation AI-Native Unified Database Engine
+# ⚡ SyntricDB: Next-Generation AI-Native Unified Database Engine
 
-[![Build Status](https://github.com/upendra-manike/CogniDB/workflows/CogniDB%20CI%20Workflow/badge.svg)](https://github.com/upendra-manike/CogniDB/actions)
+[![Build Status](https://github.com/upendra-manike/SyntricDB/workflows/SyntricDB%20CI%20Workflow/badge.svg)](https://github.com/upendra-manike/SyntricDB/actions)
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Java Version](https://img.shields.io/badge/Java-21%20LTS-orange.svg)](https://jdk.java.net/21/)
 [![YouTube Demo](https://img.shields.io/badge/YouTube-Watch%20Demo-red?logo=youtube)](https://www.youtube.com/watch?v=8xxpJwloe30)
 
-> 🎬 **[Watch the Official CogniDB Studio Video Demo on YouTube](https://www.youtube.com/watch?v=8xxpJwloe30)**
+> 🎬 **[Watch the Official SyntricDB Studio Video Demo on YouTube](https://www.youtube.com/watch?v=8xxpJwloe30)**
 
-**CogniDB** is a distributed, high-performance, AI-native unified database engine built from the ground up on **Java 21 LTS, Netty 4, HNSW Vector Indexing, LSM-Tree Storage, BM25 Full-Text Search, and Raft Consensus**.
+**SyntricDB** is a distributed, high-performance, AI-native unified database engine built from the ground up on **Java 21 LTS, Netty 4, HNSW Vector Indexing, LSM-Tree Storage, BM25 Full-Text Search, and Raft Consensus**.
 
-Instead of stitching together PostgreSQL, Redis, Elasticsearch, Kafka, and Pinecone over high-latency network boundaries, **CogniDB unifies SQL, Vector Search, In-Memory Caching, Streaming, Full-Text Search, and Built-In AI SQL Functions into ONE engine**.
+Instead of stitching together PostgreSQL, Redis, Elasticsearch, Kafka, and Pinecone over high-latency network boundaries, **SyntricDB unifies SQL, Vector Search, In-Memory Caching, Streaming, Full-Text Search, and Built-In AI SQL Functions into ONE engine**.
 
 ---
 
 ## 📚 Guides, Documentation & Multi-Language Examples
 
-- 💻 **[Multi-Language Code Examples Repository](https://github.com/upendra-manike/CogniDB_Examples)**: Dedicated repo for **Spring Boot JPA, Python, Node.js, Go, C#, Rust, and cURL**.
-- 🐍 **[Python Client (`pip install cognidb-client`)](https://pypi.org/project/cognidb-client/)**: Official PyPI Package.
-- 💚 **[Node.js Client (`npm install cognidb-client`)](https://www.npmjs.com/package/cognidb-client)**: Official npm Registry Package.
-- 🍃 **[Spring Boot & JPA Integration Example](https://github.com/upendra-manike/CogniDB_Examples/tree/main/springboot-jpa)**: Connect via `@Entity`, `@Repository`, and `@Transactional`.
-- 🐍 **[Python Integration Example](https://github.com/upendra-manike/CogniDB_Examples/tree/main/python)**: Connect via REST API using Python `requests`.
-- 💚 **[Node.js Integration Example](https://github.com/upendra-manike/CogniDB_Examples/tree/main/nodejs)**: Connect via JavaScript async fetch.
-- 🔷 **[Go Integration Example](https://github.com/upendra-manike/CogniDB_Examples/tree/main/go)**: Connect via Golang `net/http`.
-- 💜 **[C# / .NET 8 Integration Example](https://github.com/upendra-manike/CogniDB_Examples/tree/main/csharp)**: Connect via C# `HttpClient`.
-- 🦀 **[Rust Integration Example](https://github.com/upendra-manike/CogniDB_Examples/tree/main/rust)**: Connect via Rust `tokio` and `reqwest`.
+- 💻 **[Multi-Language Code Examples Repository](https://github.com/upendra-manike/SyntricDB_Examples)**: Dedicated repo for **Spring Boot JPA, Python, Node.js, Go, C#, Rust, and cURL**.
+- 🐍 **[Python Client (`pip install syntricdb-client`)](https://pypi.org/project/syntricdb-client/)**: Official PyPI Package.
+- 💚 **[Node.js Client (`npm install syntricdb-client`)](https://www.npmjs.com/package/syntricdb-client)**: Official npm Registry Package.
+- 🍃 **[Spring Boot & JPA Integration Example](https://github.com/upendra-manike/SyntricDB_Examples/tree/main/springboot-jpa)**: Connect via `@Entity`, `@Repository`, and `@Transactional`.
+- 🐍 **[Python Integration Example](https://github.com/upendra-manike/SyntricDB_Examples/tree/main/python)**: Connect via REST API using Python `requests`.
+- 💚 **[Node.js Integration Example](https://github.com/upendra-manike/SyntricDB_Examples/tree/main/nodejs)**: Connect via JavaScript async fetch.
+- 🔷 **[Go Integration Example](https://github.com/upendra-manike/SyntricDB_Examples/tree/main/go)**: Connect via Golang `net/http`.
+- 💜 **[C# / .NET 8 Integration Example](https://github.com/upendra-manike/SyntricDB_Examples/tree/main/csharp)**: Connect via C# `HttpClient`.
+- 🦀 **[Rust Integration Example](https://github.com/upendra-manike/SyntricDB_Examples/tree/main/rust)**: Connect via Rust `tokio` and `reqwest`.
 - 🤖 **[AI Agent Specification File (`llms.txt`)](./llms.txt)**: Standard machine-readable AI context file for LLMs & AI coding assistants.
 - 🌟 **[Awesome Lists Submission Kit](./AWESOME_LISTS_SUBMISSION_KIT.md)**: PR templates for `awesome-java`, `awesome-vector-search`, and `awesome-database`.
 - 🏷️ **[GitHub Metadata & AI SEO Guide](./GITHUB_REPOS_METADATA.md)**: Topic tags and SEO metadata optimization.
@@ -38,18 +38,18 @@ Instead of stitching together PostgreSQL, Redis, Elasticsearch, Kafka, and Pinec
 
 ### 🍏 macOS & Linux (One-Line Terminal Install)
 ```bash
-curl -fsSL https://raw.githubusercontent.com/upendra-manike/CogniDB/main/deploy/mac/install_mac.sh | bash
+curl -fsSL https://raw.githubusercontent.com/upendra-manike/SyntricDB/main/deploy/mac/install_mac.sh | bash
 ```
 
 ### 🪟 Windows 10 / 11 & Windows Server (One-Line PowerShell Install)
 Open PowerShell as Administrator:
 ```powershell
-powershell -ExecutionPolicy Bypass -Command "iwr -useb https://raw.githubusercontent.com/upendra-manike/CogniDB/main/deploy/windows/install_windows.ps1 | iex"
+powershell -ExecutionPolicy Bypass -Command "iwr -useb https://raw.githubusercontent.com/upendra-manike/SyntricDB/main/deploy/windows/install_windows.ps1 | iex"
 ```
 
 ### 🐧 AWS EC2 / Production Linux VM
 ```bash
-curl -fsSL https://raw.githubusercontent.com/upendra-manike/CogniDB/main/deploy/aws_ec2_install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/upendra-manike/SyntricDB/main/deploy/aws_ec2_install.sh | bash
 ```
 
 ---
@@ -57,8 +57,8 @@ curl -fsSL https://raw.githubusercontent.com/upendra-manike/CogniDB/main/deploy/
 ## 🔑 Default Credentials & Access Points
 
 - **Username**: `admin`
-- **Password**: `cognidb_secret_pass`
-- **Connection URI**: `cognidb://admin:cognidb_secret_pass@localhost:8080/default`
+- **Password**: `syntricdb_secret_pass`
+- **Connection URI**: `syntricdb://admin:syntricdb_secret_pass@localhost:8080/default`
 - **Web Dashboard**: 👉 **[http://localhost:8080/](http://localhost:8080/)**
 - **REST API**: `http://localhost:8080/api/sql`
 
@@ -70,7 +70,7 @@ curl -fsSL https://raw.githubusercontent.com/upendra-manike/CogniDB/main/deploy/
 @Repository
 public interface ProductRepository extends JpaRepository<Product, String> {
 
-    // Native CogniDB Vector Search inside Spring Data Repository!
+    // Native SyntricDB Vector Search inside Spring Data Repository!
     @Query(value = "SELECT * FROM products WHERE category = :cat AND embedding SIMILAR TO :term TOP :limit", nativeQuery = true)
     List<Product> searchByVectorSimilarity(@Param("cat") String category, 
                                            @Param("term") String searchTerm, 
@@ -82,4 +82,4 @@ public interface ProductRepository extends JpaRepository<Product, String> {
 
 ## 📜 License
 
-CogniDB is open-source software licensed under the **[Apache License 2.0](./LICENSE)**.
+SyntricDB is open-source software licensed under the **[Apache License 2.0](./LICENSE)**.

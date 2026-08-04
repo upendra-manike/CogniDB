@@ -1,0 +1,67 @@
+package com.syntricdb.net;
+
+import com.syntricdb.ai.AIEngine;
+import com.syntricdb.cluster.ClusterState;
+import com.syntricdb.engine.StorageEngine;
+import com.syntricdb.sql.QueryExecutor;
+
+import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.*;
+import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.SocketChannel;
+import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.codec.http.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class NettyServer {
+    private static final Logger log = LoggerFactory.getLogger(NettyServer.class);
+
+    private final int port;
+    private final StorageEngine storageEngine;
+    private final AIEngine aiEngine;
+    private final QueryExecutor queryExecutor;
+    private final ClusterState clusterState;
+
+    private EventLoopGroup bossGroup;
+    private EventLoopGroup workerGroup;
+    private Channel channel;
+
+    public NettyServer(int port, StorageEngine storageEngine, AIEngine aiEngine, QueryExecutor queryExecutor, ClusterState clusterState) {
+        this.port = port;
+        this.storageEngine = storageEngine;
+        this.aiEngine = aiEngine;
+        this.queryExecutor = queryExecutor;
+        this.clusterState = clusterState;
+    }
+
+    public void start() throws InterruptedException {
+        bossGroup = new NioEventLoopGroup(1);
+        workerGroup = new NioEventLoopGroup(Runtime.getRuntime().availableProcessors() * 2);
+
+        ServerBootstrap b = new ServerBootstrap();
+        b.group(bossGroup, workerGroup)
+         .channel(NioServerSocketChannel.class)
+         .childHandler(new ChannelInitializer<SocketChannel>() {
+             @Override
+             protected void initChannel(SocketChannel ch) {
+                 ChannelPipeline p = ch.pipeline();
+                 p.addLast(new HttpServerCodec());
+                 p.addLast(new HttpObjectAggregator(10 * 1024 * 1024)); // 10MB payload max
+                 p.addLast(new HTTPHandler(storageEngine, aiEngine, queryExecutor, clusterState));
+             }
+         })
+         .option(ChannelOption.SO_BACKLOG, 1024)
+         .childOption(ChannelOption.SO_KEEPALIVE, true)
+         .childOption(ChannelOption.TCP_NODELAY, true);
+
+        channel = b.bind(port).sync().channel();
+        log.info("🚀 SyntricDB Netty HTTP Engine listening on http://localhost:{}", port);
+    }
+
+    public void stop() {
+        if (channel != null) channel.close();
+        if (bossGroup != null) bossGroup.shutdownGracefully();
+        if (workerGroup != null) workerGroup.shutdownGracefully();
+    }
+}

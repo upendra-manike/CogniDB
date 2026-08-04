@@ -10,7 +10,7 @@ SEGMENTS = [
         "tab": "Overview & Cluster",
         "audio": "tab_1_dashboard.mp3",
         "image": "frame_1_dashboard.png",
-        "text": "Welcome to CogniDB Studio. Starting with Tab 1, the Overview and Cluster dashboard. Here, developers get real-time telemetry on buffer pool hit ratios, memory usage, query latency, and unified node health."
+        "text": "Welcome to SyntricDB Studio. Starting with Tab 1, the Overview and Cluster dashboard. Here, developers get real-time telemetry on buffer pool hit ratios, memory usage, query latency, and unified node health."
     },
     {
         "tab": "SQL & AI Query Studio",
@@ -28,13 +28,13 @@ SEGMENTS = [
         "tab": "AI RAG Search Engine",
         "audio": "tab_4_rag_assistant.mp3",
         "image": "frame_4_rag_assistant.png",
-        "text": "Now in Tab 4, the AI RAG Search Engine. CogniDB brings retrieval augmented generation directly into the database engine, synthesizing context-aware answers natively inside your SQL queries."
+        "text": "Now in Tab 4, the AI RAG Search Engine. SyntricDB brings retrieval augmented generation directly into the database engine, synthesizing context-aware answers natively inside your SQL queries."
     },
     {
         "tab": "IOPS Benchmark Suite",
         "audio": "tab_5_benchmark.mp3",
         "image": "frame_5_benchmark.png",
-        "text": "Finally, in Tab 5, the IOPS Benchmark Suite. You can stress test CogniDB with over 100K write operations per second and sub-millisecond HNSW vector search latencies. Star CogniDB on GitHub today!"
+        "text": "Finally, in Tab 5, the IOPS Benchmark Suite. You can stress test SyntricDB with over 100K write operations per second and sub-millisecond HNSW vector search latencies. Star SyntricDB on GitHub today!"
     }
 ]
 

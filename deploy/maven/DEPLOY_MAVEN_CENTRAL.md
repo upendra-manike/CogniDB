@@ -1,6 +1,6 @@
-# 🍃 Publishing CogniDB to Maven Central (`com.cognidb`)
+# 🍃 Publishing SyntricDB to Maven Central (`com.syntricdb`)
 
-This guide explains how to deploy CogniDB's Java artifacts (`cognidb-engine`, `cognidb-jdbc`) to **Maven Central Portal / Sonatype OSSRH** so Java & Spring Boot developers can include CogniDB natively via Maven or Gradle.
+This guide explains how to deploy SyntricDB's Java artifacts (`syntricdb-engine`, `syntricdb-jdbc`) to **Maven Central Portal / Sonatype OSSRH** so Java & Spring Boot developers can include SyntricDB natively via Maven or Gradle.
 
 ---
 
@@ -42,12 +42,12 @@ This guide explains how to deploy CogniDB's Java artifacts (`cognidb-engine`, `c
 mvn clean deploy -P release -DskipTests
 ```
 
-After deployment, Java & Spring Boot developers can use CogniDB in their `pom.xml`:
+After deployment, Java & Spring Boot developers can use SyntricDB in their `pom.xml`:
 
 ```xml
 <dependency>
-    <groupId>com.cognidb</groupId>
-    <artifactId>cognidb-jdbc</artifactId>
+    <groupId>com.syntricdb</groupId>
+    <artifactId>syntricdb-jdbc</artifactId>
     <version>1.0.0</version>
 </dependency>
 ```

@@ -15,7 +15,7 @@ def capture_tabs():
         context = browser.new_context(viewport={'width': 1920, 'height': 1080})
         page = context.new_page()
         
-        print("Navigating to CogniDB Web Studio...")
+        print("Navigating to SyntricDB Web Studio...")
         page.goto("http://localhost:8080/")
         page.wait_for_load_state("networkidle")
         time.sleep(1.5)

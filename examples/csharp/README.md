@@ -1,14 +1,14 @@
-# 💜 CogniDB C# / .NET 8 Integration Example
+# 💜 SyntricDB C# / .NET 8 Integration Example
 
-This example demonstrates how to integrate **CogniDB** into C# and .NET 8 applications using `HttpClient` and JSON payload serialization.
+This example demonstrates how to integrate **SyntricDB** into C# and .NET 8 applications using `HttpClient` and JSON payload serialization.
 
 ---
 
 ## 🛠️ How to Run
 
-1. Make sure CogniDB is running locally:
+1. Make sure SyntricDB is running locally:
    ```bash
-   cognidb start
+   syntricdb start
    ```
 
 2. Run with .NET CLI:

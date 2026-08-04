@@ -1,8 +1,8 @@
-# 📖 CogniDB Complete Technical Documentation & Reference Guide
+# 📖 SyntricDB Complete Technical Documentation & Reference Guide
 
-Welcome to the official technical documentation for **CogniDB**, the next-generation AI-native unified database engine.
+Welcome to the official technical documentation for **SyntricDB**, the next-generation AI-native unified database engine.
 
-> 🎬 **[Watch the Official CogniDB Studio Video Demo on YouTube](https://www.youtube.com/watch?v=8xxpJwloe30)**
+> 🎬 **[Watch the Official SyntricDB Studio Video Demo on YouTube](https://www.youtube.com/watch?v=8xxpJwloe30)**
 
 ---
 
@@ -21,7 +21,7 @@ Welcome to the official technical documentation for **CogniDB**, the next-genera
 
 ## 1. Architectural Principles & Engines
 
-CogniDB replaces multi-database sprawl by combining 6 core engines into a single JVM process:
+SyntricDB replaces multi-database sprawl by combining 6 core engines into a single JVM process:
 
 - **Unified Netty Server**: High-concurrency async network layer built on Netty 4.1.
 - **Java 21 Generational ZGC**: Sub-millisecond pause times (<1ms) for multi-gigabyte memory pools.
@@ -34,14 +34,14 @@ CogniDB replaces multi-database sprawl by combining 6 core engines into a single
 
 ### 🔗 Connection String Standard
 ```text
-cognidb://<username>:<password>@<host>:<port>/<database>
+syntricdb://<username>:<password>@<host>:<port>/<database>
 ```
 
 ---
 
 ## 3. ACID Transaction Management
 
-CogniDB provides full **ACID** transactions with optimistic concurrency control (OCC) and write-ahead logging (WAL):
+SyntricDB provides full **ACID** transactions with optimistic concurrency control (OCC) and write-ahead logging (WAL):
 
 ```sql
 BEGIN TRANSACTION;
@@ -53,12 +53,12 @@ COMMIT;
 
 ## 4. Spring Boot & JPA Integration Guide
 
-CogniDB seamlessly integrates with **Spring Boot**, **Spring Data JPA**, **Hibernate**, and **Spring JdbcTemplate**.
+SyntricDB seamlessly integrates with **Spring Boot**, **Spring Data JPA**, **Hibernate**, and **Spring JdbcTemplate**.
 
-### 🌟 How CogniDB Transforms Spring Boot Development:
+### 🌟 How SyntricDB Transforms Spring Boot Development:
 1. **Replaces 4 Database Starters with 1**: Eliminate `spring-boot-starter-data-redis`, `kafka-template`, and `pinecone-client` dependencies.
 2. **Native `@Query` Vector Searching**: Run semantic vector similarity search directly inside standard Spring Data Repositories.
-3. **Standard `@Transactional` Support**: Spring's `@Transactional` annotation works out-of-the-box with CogniDB's transaction manager.
+3. **Standard `@Transactional` Support**: Spring's `@Transactional` annotation works out-of-the-box with SyntricDB's transaction manager.
 
 ---
 
@@ -66,16 +66,16 @@ CogniDB seamlessly integrates with **Spring Boot**, **Spring Data JPA**, **Hiber
 
 #### 1. `application.properties` Config
 ```properties
-# Spring Boot CogniDB Data Source
-spring.datasource.url=jdbc:cognidb://localhost:8080/default
+# Spring Boot SyntricDB Data Source
+spring.datasource.url=jdbc:syntricdb://localhost:8080/default
 spring.datasource.username=admin
-spring.datasource.password=cognidb_secret_pass
+spring.datasource.password=syntricdb_secret_pass
 spring.jpa.database-platform=org.hibernate.dialect.PostgreSQLDialect
 ```
 
 #### 2. JPA Entity (`Product.java`)
 ```java
-package com.example.cognidbdemo.entity;
+package com.example.syntricdbdemo.entity;
 
 import jakarta.persistence.*;
 
@@ -104,9 +104,9 @@ public class Product {
 
 #### 3. Spring Data Repository with Native Vector Query (`ProductRepository.java`)
 ```java
-package com.example.cognidbdemo.repository;
+package com.example.syntricdbdemo.repository;
 
-import com.example.cognidbdemo.entity.Product;
+import com.example.syntricdbdemo.entity.Product;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -120,13 +120,13 @@ public interface ProductRepository extends JpaRepository<Product, String> {
     // Standard JPA Derived Method
     List<Product> findByCategoryAndPriceLessThan(String category, Double price);
 
-    // Native CogniDB Hybrid SQL + Vector Similarity Query
+    // Native SyntricDB Hybrid SQL + Vector Similarity Query
     @Query(value = "SELECT * FROM products WHERE category = :category AND embedding SIMILAR TO :searchTerm TOP :limit", nativeQuery = true)
     List<Product> searchByVectorSimilarity(@Param("category") String category, 
                                            @Param("searchTerm") String searchTerm, 
                                            @Param("limit") int limit);
 
-    // Native CogniDB In-Engine AI RAG Query
+    // Native SyntricDB In-Engine AI RAG Query
     @Query(value = "SELECT AI_RAG(:prompt)", nativeQuery = true)
     String generateAIRagResponse(@Param("prompt") String prompt);
 }
@@ -134,10 +134,10 @@ public interface ProductRepository extends JpaRepository<Product, String> {
 
 #### 4. Spring Boot Service Layer (`ProductService.java`)
 ```java
-package com.example.cognidbdemo.service;
+package com.example.syntricdbdemo.service;
 
-import com.example.cognidbdemo.entity.Product;
-import com.example.cognidbdemo.repository.ProductRepository;
+import com.example.syntricdbdemo.entity.Product;
+import com.example.syntricdbdemo.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -181,10 +181,10 @@ CREATE TABLE products (
 
 ## 6. Backend Language SDK Integration
 
-> 💻 **Official Multi-Language Code Examples Repository**: 👉 **[https://github.com/upendra-manike/CogniDB_Examples](https://github.com/upendra-manike/CogniDB_Examples)**
+> 💻 **Official Multi-Language Code Examples Repository**: 👉 **[https://github.com/upendra-manike/SyntricDB_Examples](https://github.com/upendra-manike/SyntricDB_Examples)**
 
 ### 🍃 Spring Boot 3 & JPA
-CogniDB connects via standard PostgreSQL JDBC driver with Spring Data JPA entities and custom repository vector methods:
+SyntricDB connects via standard PostgreSQL JDBC driver with Spring Data JPA entities and custom repository vector methods:
 
 ```java
 // ProductEntity.java
@@ -212,19 +212,19 @@ public interface ProductRepository extends JpaRepository<Product, String> {
 
 ---
 
-### 🐍 Python (`pip install cognidb-client`)
+### 🐍 Python (`pip install syntricdb-client`)
 
-Official PyPI package live at 👉 **[https://pypi.org/project/cognidb-client/](https://pypi.org/project/cognidb-client/)**
+Official PyPI package live at 👉 **[https://pypi.org/project/syntricdb-client/](https://pypi.org/project/syntricdb-client/)**
 
 ```bash
-pip install cognidb-client
+pip install syntricdb-client
 ```
 
 ```python
-from cognidb import CogniDBClient
+from syntricdb import SyntricDBClient
 
-# Initialize CogniDB Client
-client = CogniDBClient(host="http://localhost:8080")
+# Initialize SyntricDB Client
+client = SyntricDBClient(host="http://localhost:8080")
 
 # 1. Insert Record with Auto AI Embeddings
 client.insert_vector(
@@ -246,16 +246,16 @@ print(results)
 
 ---
 
-### 💚 Node.js / JavaScript (`npm install cognidb-client`)
+### 💚 Node.js / JavaScript (`npm install syntricdb-client`)
 
 ```bash
-npm install cognidb-client
+npm install syntricdb-client
 ```
 
 ```javascript
-const { CogniDBClient } = require('cognidb-client');
+const { SyntricDBClient } = require('syntricdb-client');
 
-const client = new CogniDBClient({ host: 'http://localhost:8080' });
+const client = new SyntricDBClient({ host: 'http://localhost:8080' });
 
 // Perform Vector Search
 client.vectorSearch('node_services', 'authentication microservice', 1, "region = 'us-east-1'")

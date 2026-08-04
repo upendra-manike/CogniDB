@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>com.cognidb</groupId>
-  <artifactId>cognidb-engine</artifactId>
-  <name>CogniDB AI-Native Database</name>
+  <groupId>com.syntricdb</groupId>
+  <artifactId>syntricdb-engine</artifactId>
+  <name>SyntricDB AI-Native Database</name>
   <version>1.0.0-SNAPSHOT</version>
   <description>Next-Generation Distributed AI-Native Unified Database Engine</description>
   <build>
@@ -28,7 +28,7 @@
             <configuration>
               <transformers>
                 <transformer>
-                  <mainClass>com.cognidb.CogniDBServer</mainClass>
+                  <mainClass>com.syntricdb.SyntricDBServer</mainClass>
                 </transformer>
               </transformers>
               <filters>
@@ -50,7 +50,7 @@
         <artifactId>exec-maven-plugin</artifactId>
         <version>3.1.0</version>
         <configuration>
-          <mainClass>com.cognidb.CogniDBServer</mainClass>
+          <mainClass>com.syntricdb.SyntricDBServer</mainClass>
         </configuration>
       </plugin>
     </plugins>

@@ -1,19 +1,19 @@
-# 🐍 CogniDB Official Python SDK (`pip install cognidb-client`)
+# 🐍 SyntricDB Official Python SDK (`pip install syntricdb-client`)
 
-Official Python Client for **CogniDB**—the AI-Native Unified Database Engine.
+Official Python Client for **SyntricDB**—the AI-Native Unified Database Engine.
 
 ---
 
 ## ⚡ Quick Start
 
 ```bash
-pip install cognidb-client
+pip install syntricdb-client
 ```
 
 ```python
-from cognidb import CogniDBClient
+from syntricdb import SyntricDBClient
 
-client = CogniDBClient(host="http://localhost:8080")
+client = SyntricDBClient(host="http://localhost:8080")
 
 # Perform Hybrid SQL + Vector Search
 results = client.vector_search(

@@ -2,7 +2,7 @@
 set -e
 
 echo "================================================="
-echo "💚 Publishing CogniDB Package to npm Registry"
+echo "💚 Publishing SyntricDB Package to npm Registry"
 echo "================================================="
 
 cd "$(dirname "$0")"
@@ -18,11 +18,11 @@ if ! npm whoami &> /dev/null; then
 fi
 
 # 3. Publish to npm
-echo "🚀 Publishing cognidb-client to npm..."
+echo "🚀 Publishing syntricdb-client to npm..."
 if npm publish --access public; then
     echo "================================================="
-    echo "✅ Successfully published cognidb-client to npm!"
-    echo "Developers can now install via: npm install cognidb-client"
+    echo "✅ Successfully published syntricdb-client to npm!"
+    echo "Developers can now install via: npm install syntricdb-client"
     echo "================================================="
 else
     echo "================================================="

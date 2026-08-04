@@ -9,7 +9,7 @@ import (
 	"os"
 )
 
-const CogniDBURL = "http://localhost:8080/api/sql"
+const SyntricDBURL = "http://localhost:8080/api/sql"
 
 type QueryPayload struct {
 	SQL string `json:"sql"`
@@ -22,7 +22,7 @@ func executeQuery(sql string) (string, error) {
 		return "", err
 	}
 
-	resp, err := http.Post(CogniDBURL, "application/json", bytes.NewBuffer(body))
+	resp, err := http.Post(SyntricDBURL, "application/json", bytes.NewBuffer(body))
 	if err != nil {
 		return "", err
 	}
@@ -38,7 +38,7 @@ func executeQuery(sql string) (string, error) {
 
 func main() {
 	fmt.Println("=================================================")
-	fmt.Println("🔷 CogniDB Go Integration Demo")
+	fmt.Println("🔷 SyntricDB Go Integration Demo")
 	fmt.Println("=================================================")
 
 	// 1. Create Table

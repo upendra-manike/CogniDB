@@ -4,11 +4,11 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.example.cognidb</groupId>
-    <artifactId>cognidb-springboot-jpa-demo</artifactId>
+    <groupId>com.example.syntricdb</groupId>
+    <artifactId>syntricdb-springboot-jpa-demo</artifactId>
     <version>1.0.0</version>
-    <name>cognidb-springboot-jpa-demo</name>
-    <description>Spring Boot JPA & Vector CRUD Operations with CogniDB</description>
+    <name>syntricdb-springboot-jpa-demo</name>
+    <description>Spring Boot JPA & Vector CRUD Operations with SyntricDB</description>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -34,7 +34,7 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
-        <!-- PostgreSQL Driver (CogniDB wire-compatible interface) -->
+        <!-- PostgreSQL Driver (SyntricDB wire-compatible interface) -->
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>

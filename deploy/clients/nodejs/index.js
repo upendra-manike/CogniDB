@@ -1,7 +1,7 @@
 /**
- * Official Node.js Client for CogniDB AI-Native Unified Database Engine.
+ * Official Node.js Client for SyntricDB AI-Native Unified Database Engine.
  */
-class CogniDBClient {
+class SyntricDBClient {
     constructor(options = {}) {
         this.host = (options.host || 'http://localhost:8080').replace(/\/$/, '');
         this.endpoint = `${this.host}/api/sql`;
@@ -22,7 +22,7 @@ class CogniDBClient {
 
         if (!response.ok) {
             const errorText = await response.text();
-            throw new Error(`CogniDB Error (${response.status}): ${errorText}`);
+            throw new Error(`SyntricDB Error (${response.status}): ${errorText}`);
         }
 
         return await response.json();
@@ -36,4 +36,4 @@ class CogniDBClient {
     }
 }
 
-module.exports = { CogniDBClient };
+module.exports = { SyntricDBClient };

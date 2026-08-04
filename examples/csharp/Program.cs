@@ -4,17 +4,17 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace CogniDBDemo
+namespace SyntricDBDemo
 {
     class Program
     {
         private static readonly HttpClient client = new HttpClient();
-        private const string CogniDBUrl = "http://localhost:8080/api/sql";
+        private const string SyntricDBUrl = "http://localhost:8080/api/sql";
 
         static async Task Main(string[] args)
         {
             Console.WriteLine("=================================================");
-            Console.WriteLine("💜 CogniDB C# / .NET 8 Integration Demo");
+            Console.WriteLine("💜 SyntricDB C# / .NET 8 Integration Demo");
             Console.WriteLine("=================================================");
 
             // 1. Create Table
@@ -56,7 +56,7 @@ namespace CogniDBDemo
             var json = JsonSerializer.Serialize(new { sql = sql });
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-            var response = await client.PostAsync(CogniDBUrl, content);
+            var response = await client.PostAsync(SyntricDBUrl, content);
             return await response.Content.ReadAsStringAsync();
         }
     }

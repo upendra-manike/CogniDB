@@ -1,7 +1,7 @@
 {
-  "name": "cognidb-nodejs-demo",
+  "name": "syntricdb-nodejs-demo",
   "version": "1.0.0",
-  "description": "Node.js REST & Vector CRUD Operations with CogniDB",
+  "description": "Node.js REST & Vector CRUD Operations with SyntricDB",
   "main": "index.js",
   "type": "commonjs",
   "scripts": {

@@ -1,4 +1,4 @@
-name: CogniDB CI Workflow
+name: SyntricDB CI Workflow
 
 on:
   push:

@@ -1,4 +1,4 @@
-// CogniDB Web Studio JavaScript Client Engine
+// SyntricDB Web Studio JavaScript Client Engine
 
 document.addEventListener('DOMContentLoaded', () => {
     initNavigation();

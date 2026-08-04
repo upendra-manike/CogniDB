@@ -1,13 +1,13 @@
 {
-  "name": "cognidb-client",
+  "name": "syntricdb-client",
   "version": "1.0.1",
-  "description": "Official Node.js SDK for CogniDB AI-Native Unified Database Engine",
+  "description": "Official Node.js SDK for SyntricDB AI-Native Unified Database Engine",
   "main": "index.js",
   "scripts": {
-    "test": "node -e \"const { CogniDBClient } = require('./index'); console.log(new CogniDBClient());\""
+    "test": "node -e \"const { SyntricDBClient } = require('./index'); console.log(new SyntricDBClient());\""
   },
   "keywords": [
-    "cognidb",
+    "syntricdb",
     "database",
     "vector-search",
     "hnsw",
@@ -15,10 +15,10 @@
     "rag",
     "sql"
   ],
-  "author": "Upendra Manike <upendra@cognidb.io>",
+  "author": "Upendra Manike <upendra@syntricdb.io>",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/upendra-manike/CogniDB.git"
+    "url": "https://github.com/upendra-manike/SyntricDB.git"
   }
 }

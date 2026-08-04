@@ -2,7 +2,7 @@
 set -e
 
 echo "================================================="
-echo "🐍 Publishing CogniDB Python Package to PyPI"
+echo "🐍 Publishing SyntricDB Python Package to PyPI"
 echo "================================================="
 
 cd "$(dirname "$0")"
@@ -23,8 +23,8 @@ fi
 echo "🚀 Uploading to PyPI..."
 if twine upload dist/*; then
     echo "================================================="
-    echo "✅ Successfully published cognidb-client to PyPI!"
-    echo "Developers can now install via: pip install cognidb-client"
+    echo "✅ Successfully published syntricdb-client to PyPI!"
+    echo "Developers can now install via: pip install syntricdb-client"
     echo "================================================="
 else
     echo "================================================="

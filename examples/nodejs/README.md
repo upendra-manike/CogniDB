@@ -1,14 +1,14 @@
-# 💚 CogniDB Node.js Integration Example
+# 💚 SyntricDB Node.js Integration Example
 
-This example demonstrates how to integrate **CogniDB** into JavaScript / Node.js backend services.
+This example demonstrates how to integrate **SyntricDB** into JavaScript / Node.js backend services.
 
 ---
 
 ## 🛠️ How to Run
 
-1. Make sure CogniDB is running locally:
+1. Make sure SyntricDB is running locally:
    ```bash
-   cognidb start
+   syntricdb start
    ```
 
 2. Install dependencies:

@@ -1,19 +1,19 @@
-# 📱 WhatsApp Status Launch Kit for CogniDB
+# 📱 WhatsApp Status Launch Kit for SyntricDB
 
 > 🎬 **Official YouTube Video Demo**: 👉 **[https://www.youtube.com/watch?v=8xxpJwloe30](https://www.youtube.com/watch?v=8xxpJwloe30)**
 
-Here are high-engagement WhatsApp Status captions to post alongside your demo video (`cognidb_studio_tab_by_tab_demo.mp4`)!
+Here are high-engagement WhatsApp Status captions to post alongside your demo video (`syntricdb_studio_tab_by_tab_demo.mp4`)!
 
 ---
 
 ## ⚡ Option 1: Short Video Caption (Recommended for Video Status)
 
 ```text
-🚀 Excited to share CogniDB—the AI-Native Unified Database Engine I built in Java 21! 
+🚀 Excited to share SyntricDB—the AI-Native Unified Database Engine I built in Java 21! 
 Relational SQL + HNSW Vector Search + In-Memory Caching in ONE engine. 
 
 🎬 Watch full demo on YouTube: https://www.youtube.com/watch?v=8xxpJwloe30
-⭐ Check out the project on GitHub: https://github.com/upendra-manike/CogniDB
+⭐ Check out the project on GitHub: https://github.com/upendra-manike/SyntricDB
 ```
 
 ---
@@ -23,9 +23,9 @@ Relational SQL + HNSW Vector Search + In-Memory Caching in ONE engine.
 ```text
 🔥 Goodbye Database Sprawl!
 
-Just released CogniDB—an open-source AI-Native Unified Database Engine built with Java 21 LTS! ⚡
+Just released SyntricDB—an open-source AI-Native Unified Database Engine built with Java 21 LTS! ⚡
 
-Instead of using Postgres + Pinecone + Redis + Kafka... CogniDB unifies:
+Instead of using Postgres + Pinecone + Redis + Kafka... SyntricDB unifies:
 ✅ Relational SQL + Vector SIMILAR TO queries
 ✅ Sub-millisecond HNSW Vector Search
 ✅ 2D Interactive Vector Embedding Explorer
@@ -33,7 +33,7 @@ Instead of using Postgres + Pinecone + Redis + Kafka... CogniDB unifies:
 ✅ Spring Boot JPA & Multi-language SDKs (Python, Go, Node, C#)
 
 ⭐ Star & check out the code on GitHub:
-https://github.com/upendra-manike/CogniDB
+https://github.com/upendra-manike/SyntricDB
 ```
 
 ---
@@ -44,6 +44,6 @@ https://github.com/upendra-manike/CogniDB
 Built an AI-Native Database Engine in Java 21 LTS! 💻⚡
 Sub-millisecond Vector Search + SQL + Native RAG in a single process.
 
-⭐ Repo link: https://github.com/upendra-manike/CogniDB
+⭐ Repo link: https://github.com/upendra-manike/SyntricDB
 Drop a star if you like it! 🙌
 ```

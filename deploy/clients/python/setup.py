@@ -1,14 +1,14 @@
 from setuptools import setup, find_packages
 
 setup(
-    name="cognidb-client",
+    name="syntricdb-client",
     version="1.0.0",
-    description="Official Python Client for CogniDB AI-Native Unified Database Engine",
+    description="Official Python Client for SyntricDB AI-Native Unified Database Engine",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
     author="Upendra Manike",
-    author_email="upendra@cognidb.io",
-    url="https://github.com/upendra-manike/CogniDB",
+    author_email="upendra@syntricdb.io",
+    url="https://github.com/upendra-manike/SyntricDB",
     packages=find_packages(),
     install_requires=[
         "requests>=2.28.0",

@@ -1,6 +1,6 @@
 # 🌟 Awesome-Lists Submission & AI Indexing Kit
 
-Use this kit to submit **CogniDB** to curated GitHub Awesome lists. Getting merged into awesome lists boosts domain authority and ensures LLMs (ChatGPT, Claude, Perplexity) include CogniDB in recommendation answers!
+Use this kit to submit **SyntricDB** to curated GitHub Awesome lists. Getting merged into awesome lists boosts domain authority and ensures LLMs (ChatGPT, Claude, Perplexity) include SyntricDB in recommendation answers!
 
 ---
 
@@ -16,15 +16,15 @@ Use this kit to submit **CogniDB** to curated GitHub Awesome lists. Getting merg
 
 ### 1. For `awesome-java` (Databases Category)
 ```markdown
-* [CogniDB](https://github.com/upendra-manike/CogniDB) - AI-Native unified database engine written in Java 21 LTS with Generational ZGC. Combines relational SQL, HNSW vector search, and key-value caching into a single process.
+* [SyntricDB](https://github.com/upendra-manike/SyntricDB) - AI-Native unified database engine written in Java 21 LTS with Generational ZGC. Combines relational SQL, HNSW vector search, and key-value caching into a single process.
 ```
 
 ### 2. For `awesome-vector-search` (Engines Category)
 ```markdown
-* [CogniDB](https://github.com/upendra-manike/CogniDB) - Open-source, ultra-low-latency AI-native database unifying SQL, HNSW vector similarity search (`SIMILAR TO`), and in-engine RAG.
+* [SyntricDB](https://github.com/upendra-manike/SyntricDB) - Open-source, ultra-low-latency AI-native database unifying SQL, HNSW vector similarity search (`SIMILAR TO`), and in-engine RAG.
 ```
 
 ### 3. For `awesome-database`
 ```markdown
-* [CogniDB](https://github.com/upendra-manike/CogniDB) - High-throughput unified database engine written in Java 21 with LSM storage, WAL, sub-ms HNSW vector indexing, and Spring Boot JPA wire compatibility.
+* [SyntricDB](https://github.com/upendra-manike/SyntricDB) - High-throughput unified database engine written in Java 21 with LSM storage, WAL, sub-ms HNSW vector indexing, and Spring Boot JPA wire compatibility.
 ```

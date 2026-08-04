@@ -1,20 +1,20 @@
 #!/bin/bash
 # ==============================================================================
-# CogniDB macOS Native Installer (Launchd Daemon & CLI Setup)
-# Usage: curl -fsSL https://raw.githubusercontent.com/upendra-manike/CogniDB/main/deploy/mac/install_mac.sh | bash
+# SyntricDB macOS Native Installer (Launchd Daemon & CLI Setup)
+# Usage: curl -fsSL https://raw.githubusercontent.com/upendra-manike/SyntricDB/main/deploy/mac/install_mac.sh | bash
 # ==============================================================================
 set -e
 
 echo "=========================================================================="
-echo "⚡ CogniDB macOS Native Installer ⚡"
+echo "⚡ SyntricDB macOS Native Installer ⚡"
 echo "=========================================================================="
 
-COGNIDB_DIR="$HOME/.cognidb"
-INSTALL_DIR="$COGNIDB_DIR/bin"
-CONF_FILE="$COGNIDB_DIR/cognidb.conf"
-LAUNCHD_PLIST="$HOME/Library/LaunchAgents/com.cognidb.server.plist"
+SYNTRICDB_DIR="$HOME/.syntricdb"
+INSTALL_DIR="$SYNTRICDB_DIR/bin"
+CONF_FILE="$SYNTRICDB_DIR/syntricdb.conf"
+LAUNCHD_PLIST="$HOME/Library/LaunchAgents/com.syntricdb.server.plist"
 
-mkdir -p "$COGNIDB_DIR" "$INSTALL_DIR" "$COGNIDB_DIR/data" "$COGNIDB_DIR/wal" "$COGNIDB_DIR/snapshots"
+mkdir -p "$SYNTRICDB_DIR" "$INSTALL_DIR" "$SYNTRICDB_DIR/data" "$SYNTRICDB_DIR/wal" "$SYNTRICDB_DIR/snapshots"
 
 # 1. Check for Homebrew & Java 21
 if ! command -v java &> /dev/null; then
@@ -35,82 +35,82 @@ bind_address=0.0.0.0
 port=8080
 auth_enabled=true
 admin_user=admin
-admin_password=cognidb_secret_pass
-data_dir=$COGNIDB_DIR/data
-wal_dir=$COGNIDB_DIR/wal
-snapshot_dir=$COGNIDB_DIR/snapshots
+admin_password=syntricdb_secret_pass
+data_dir=$SYNTRICDB_DIR/data
+wal_dir=$SYNTRICDB_DIR/wal
+snapshot_dir=$SYNTRICDB_DIR/snapshots
 EOF
     echo "✅ Created configuration at $CONF_FILE"
 fi
 
 # 3. Copy/Build JAR
-if [ -f "target/cognidb-engine-1.0.0-SNAPSHOT.jar" ]; then
-    cp target/cognidb-engine-1.0.0-SNAPSHOT.jar "$INSTALL_DIR/cognidb-engine.jar"
-elif [ -f "$INSTALL_DIR/cognidb-engine.jar" ]; then
-    echo "✅ Found existing CogniDB engine jar."
+if [ -f "target/syntricdb-engine-1.0.0-SNAPSHOT.jar" ]; then
+    cp target/syntricdb-engine-1.0.0-SNAPSHOT.jar "$INSTALL_DIR/syntricdb-engine.jar"
+elif [ -f "$INSTALL_DIR/syntricdb-engine.jar" ]; then
+    echo "✅ Found existing SyntricDB engine jar."
 else
-    echo "🔨 Building CogniDB JAR..."
+    echo "🔨 Building SyntricDB JAR..."
     mvn clean package -DskipTests
-    cp target/cognidb-engine-1.0.0-SNAPSHOT.jar "$INSTALL_DIR/cognidb-engine.jar"
+    cp target/syntricdb-engine-1.0.0-SNAPSHOT.jar "$INSTALL_DIR/syntricdb-engine.jar"
 fi
 
 # 4. Create Launcher Script
-cat << 'EOF' > "$INSTALL_DIR/cognidb"
+cat << 'EOF' > "$INSTALL_DIR/syntricdb"
 #!/bin/bash
-COGNIDB_DIR="$HOME/.cognidb"
-JAR_PATH="$COGNIDB_DIR/bin/cognidb-engine.jar"
-PID_FILE="$COGNIDB_DIR/cognidb.pid"
-LOG_FILE="$COGNIDB_DIR/cognidb.log"
+SYNTRICDB_DIR="$HOME/.syntricdb"
+JAR_PATH="$SYNTRICDB_DIR/bin/syntricdb-engine.jar"
+PID_FILE="$SYNTRICDB_DIR/syntricdb.pid"
+LOG_FILE="$SYNTRICDB_DIR/syntricdb.log"
 
 case "$1" in
     start)
         if [ -f "$PID_FILE" ] && kill -0 $(cat "$PID_FILE") 2>/dev/null; then
-            echo "⚡ CogniDB Server is already running (PID: $(cat "$PID_FILE"))"
+            echo "⚡ SyntricDB Server is already running (PID: $(cat "$PID_FILE"))"
             exit 0
         fi
-        echo "🚀 Starting CogniDB macOS Server (Port 8080)..."
+        echo "🚀 Starting SyntricDB macOS Server (Port 8080)..."
         nohup java -Xms1g -Xmx4g -XX:+UseZGC -jar "$JAR_PATH" > "$LOG_FILE" 2>&1 &
         echo $! > "$PID_FILE"
         sleep 2
-        echo "✅ CogniDB Server started successfully (PID: $(cat "$PID_FILE"))"
+        echo "✅ SyntricDB Server started successfully (PID: $(cat "$PID_FILE"))"
         echo "🌐 Web Studio: http://localhost:8080/"
         ;;
     stop)
         if [ -f "$PID_FILE" ]; then
             PID=$(cat "$PID_FILE")
-            echo "🛑 Stopping CogniDB Server (PID: $PID)..."
+            echo "🛑 Stopping SyntricDB Server (PID: $PID)..."
             kill "$PID" 2>/dev/null || true
             rm -f "$PID_FILE"
-            echo "✅ CogniDB stopped."
+            echo "✅ SyntricDB stopped."
         else
-            echo "⚠️ CogniDB is not running."
+            echo "⚠️ SyntricDB is not running."
         fi
         ;;
     status)
         if [ -f "$PID_FILE" ] && kill -0 $(cat "$PID_FILE") 2>/dev/null; then
-            echo "🟢 CogniDB is running (PID: $(cat "$PID_FILE"))"
+            echo "🟢 SyntricDB is running (PID: $(cat "$PID_FILE"))"
         else
-            echo "🔴 CogniDB is stopped."
+            echo "🔴 SyntricDB is stopped."
         fi
         ;;
     cli|shell)
         shift 1
-        java -cp "$JAR_PATH" com.cognidb.cli.CogniCLI "$@"
+        java -cp "$JAR_PATH" com.syntricdb.cli.SyntricCLI "$@"
         ;;
     logs)
         tail -f "$LOG_FILE"
         ;;
     *)
-        echo "Usage: cognidb {start|stop|status|cli|logs}"
+        echo "Usage: syntricdb {start|stop|status|cli|logs}"
         ;;
 esac
 EOF
-chmod +x "$INSTALL_DIR/cognidb"
+chmod +x "$INSTALL_DIR/syntricdb"
 
 # Symlink to /usr/local/bin if writable
 if [ -d "/usr/local/bin" ] && [ -w "/usr/local/bin" ]; then
-    ln -sf "$INSTALL_DIR/cognidb" /usr/local/bin/cognidb
-    echo "✅ Linked binary to /usr/local/bin/cognidb"
+    ln -sf "$INSTALL_DIR/syntricdb" /usr/local/bin/syntricdb
+    echo "✅ Linked binary to /usr/local/bin/syntricdb"
 fi
 
 # 5. Create macOS LaunchAgent PLIST for autostart
@@ -121,32 +121,32 @@ cat << EOF > "$LAUNCHD_PLIST"
 <plist version="1.0">
 <dict>
     <key>Label</key>
-    <string>com.cognidb.server</string>
+    <string>com.syntricdb.server</string>
     <key>ProgramArguments</key>
     <array>
         <string>/usr/bin/java</string>
         <string>-Xms1g</string>
         <string>-Xmx4g</string>
         <string>-jar</string>
-        <string>$INSTALL_DIR/cognidb-engine.jar</string>
+        <string>$INSTALL_DIR/syntricdb-engine.jar</string>
     </array>
     <key>RunAtLoad</key>
     <true/>
     <key>KeepAlive</key>
     <true/>
     <key>StandardOutPath</key>
-    <string>$COGNIDB_DIR/cognidb.log</string>
+    <string>$SYNTRICDB_DIR/syntricdb.log</string>
     <key>StandardErrorPath</key>
-    <string>$COGNIDB_DIR/cognidb_error.log</string>
+    <string>$SYNTRICDB_DIR/syntricdb_error.log</string>
 </dict>
 </plist>
 EOF
 
 echo ""
 echo "=========================================================================="
-echo "🎉 CogniDB macOS Installation Complete!"
+echo "🎉 SyntricDB macOS Installation Complete!"
 echo "=========================================================================="
-echo "🚀 Start Server   : cognidb start"
-echo "💻 Launch CLI      : cognidb cli"
+echo "🚀 Start Server   : syntricdb start"
+echo "💻 Launch CLI      : syntricdb cli"
 echo "🌐 Web Dashboard  : http://localhost:8080/"
 echo "=========================================================================="

@@ -1,15 +1,15 @@
-# 🎓 CogniDB Step-by-Step Interactive Tutorial
+# 🎓 SyntricDB Step-by-Step Interactive Tutorial
 
-Welcome to the **CogniDB Hands-On Tutorial**! This step-by-step guide will take you from zero to running advanced hybrid vector SQL queries, ACID transactions, AI RAG prompts, full-text searches, and disaster recovery snapshots across multiple backend programming languages.
+Welcome to the **SyntricDB Hands-On Tutorial**! This step-by-step guide will take you from zero to running advanced hybrid vector SQL queries, ACID transactions, AI RAG prompts, full-text searches, and disaster recovery snapshots across multiple backend programming languages.
 
-> 🎬 **[Watch the Official CogniDB Studio Video Demo on YouTube](https://www.youtube.com/watch?v=8xxpJwloe30)**
+> 🎬 **[Watch the Official SyntricDB Studio Video Demo on YouTube](https://www.youtube.com/watch?v=8xxpJwloe30)**
 
 ---
 
 ## 📌 Prerequisites
-Make sure **CogniDB** is installed and running on your system:
-- **macOS / Linux**: `cognidb start`
-- **Windows**: `cognidb start` (in PowerShell / Command Prompt)
+Make sure **SyntricDB** is installed and running on your system:
+- **macOS / Linux**: `syntricdb start`
+- **Windows**: `syntricdb start` (in PowerShell / Command Prompt)
 - **Verify Web Dashboard**: Open [http://localhost:8080/](http://localhost:8080/) in your browser.
 
 ---
@@ -19,16 +19,16 @@ Make sure **CogniDB** is installed and running on your system:
 Open your terminal and run:
 
 ```bash
-cognidb cli
+syntricdb cli
 ```
 
-You will see the CogniDB interactive prompt:
+You will see the SyntricDB interactive prompt:
 ```text
 ==================================================================
-⚡ CogniDB Interactive CLI Shell (v1.0.0) ⚡
+⚡ SyntricDB Interactive CLI Shell (v1.0.0) ⚡
 Type 'exit;' or 'quit;' to exit. Type 'help;' for commands.
 ==================================================================
-cognidb> 
+syntricdb> 
 ```
 
 ---
@@ -87,7 +87,7 @@ INSERT INTO products VALUES (
 
 ## 🛡️ Step 4: Execute ACID Transactions (Begin, Commit, Rollback)
 
-CogniDB supports full **ACID transactions** with optimistic concurrency control (OCC) and write-ahead logging (WAL):
+SyntricDB supports full **ACID transactions** with optimistic concurrency control (OCC) and write-ahead logging (WAL):
 
 ```sql
 -- 1. Begin Atomic Transaction
@@ -133,7 +133,7 @@ TOP 2;
 ## 🤖 Step 6: Execute In-Engine AI RAG & Summarization
 
 ### 1. In-Engine RAG (Retrieval-Augmented Generation)
-Ask CogniDB to synthesize answers from your stored data:
+Ask SyntricDB to synthesize answers from your stored data:
 ```sql
 SELECT AI_RAG('Which products are best suited for software developers?');
 ```
@@ -149,11 +149,11 @@ SNAPSHOT CREATE;
 
 ### 2. Restore Database State
 ```sql
-SNAPSHOT RESTORE 'cognidb_snapshot_20260802_...';
+SNAPSHOT RESTORE 'syntricdb_snapshot_20260802_...';
 ```
 
 ---
 
 ## 🎉 Summary
 
-You have completed the **CogniDB Tutorial**! You now know how to execute **ACID transactions**, run vector similarity queries, and manage database snapshots!
+You have completed the **SyntricDB Tutorial**! You now know how to execute **ACID transactions**, run vector similarity queries, and manage database snapshots!

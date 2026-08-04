@@ -1,3 +1,3 @@
-module cognidb-go-demo
+module syntricdb-go-demo
 
 go 1.21

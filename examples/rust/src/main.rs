@@ -1,7 +1,7 @@
 use serde::Serialize;
 use std::error::Error;
 
-const COGNIDB_URL: &str = "http://localhost:8080/api/sql";
+const SYNTRICDB_URL: &str = "http://localhost:8080/api/sql";
 
 #[derive(Serialize)]
 struct QueryRequest<'a> {
@@ -12,7 +12,7 @@ async fn execute_query(sql: &str) -> Result<String, Box<dyn Error>> {
     let client = reqwest::Client::new();
     let body = QueryRequest { sql };
     let resp = client
-        .post(COGNIDB_URL)
+        .post(SYNTRICDB_URL)
         .json(&body)
         .send()
         .await?
@@ -24,7 +24,7 @@ async fn execute_query(sql: &str) -> Result<String, Box<dyn Error>> {
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     println!("=================================================");
-    println!("🦀 CogniDB Rust Integration Demo");
+    println!("🦀 SyntricDB Rust Integration Demo");
     println!("=================================================");
 
     // 1. Create Table

@@ -1,11 +1,11 @@
-# 💚 CogniDB Official Node.js SDK (`npm install cognidb-client`)
+# 💚 SyntricDB Official Node.js SDK (`npm install syntricdb-client`)
 
-Official Node.js Client for **CogniDB**—the AI-Native Unified Database Engine.
+Official Node.js Client for **SyntricDB**—the AI-Native Unified Database Engine.
 
-[![npm version](https://img.shields.io/npm/v/cognidb-client.svg)](https://www.npmjs.com/package/cognidb-client)
+[![npm version](https://img.shields.io/npm/v/syntricdb-client.svg)](https://www.npmjs.com/package/syntricdb-client)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-CogniDB unifies relational SQL queries, HNSW vector similarity search (`SIMILAR TO`), in-memory key-value caching, and in-engine AI RAG into a single low-latency engine.
+SyntricDB unifies relational SQL queries, HNSW vector similarity search (`SIMILAR TO`), in-memory key-value caching, and in-engine AI RAG into a single low-latency engine.
 
 ---
 
@@ -14,16 +14,16 @@ CogniDB unifies relational SQL queries, HNSW vector similarity search (`SIMILAR 
 ### 1. Installation
 
 ```bash
-npm install cognidb-client
+npm install syntricdb-client
 ```
 
 ### 2. Usage Example
 
 ```javascript
-const { CogniDBClient } = require('cognidb-client');
+const { SyntricDBClient } = require('syntricdb-client');
 
-// Initialize CogniDB Client
-const client = new CogniDBClient({ host: 'http://localhost:8080' });
+// Initialize SyntricDB Client
+const client = new SyntricDBClient({ host: 'http://localhost:8080' });
 
 async function runDemo() {
     // 1. Execute SQL Query
@@ -55,7 +55,7 @@ runDemo().catch(console.error);
 
 ## 🔗 Useful Links
 
-- 🐙 **GitHub Repository**: [https://github.com/upendra-manike/CogniDB](https://github.com/upendra-manike/CogniDB)
-- 💻 **Multi-Language Examples**: [https://github.com/upendra-manike/CogniDB_Examples](https://github.com/upendra-manike/CogniDB_Examples)
+- 🐙 **GitHub Repository**: [https://github.com/upendra-manike/SyntricDB](https://github.com/upendra-manike/SyntricDB)
+- 💻 **Multi-Language Examples**: [https://github.com/upendra-manike/SyntricDB_Examples](https://github.com/upendra-manike/SyntricDB_Examples)
 - 🎬 **Video Walkthrough**: [https://www.youtube.com/watch?v=8xxpJwloe30](https://www.youtube.com/watch?v=8xxpJwloe30)
-- 📖 **Technical Documentation**: [CogniDB Documentation](https://github.com/upendra-manike/CogniDB/blob/main/DOCUMENTATION.md)
+- 📖 **Technical Documentation**: [SyntricDB Documentation](https://github.com/upendra-manike/SyntricDB/blob/main/DOCUMENTATION.md)

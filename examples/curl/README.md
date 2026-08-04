@@ -1,14 +1,14 @@
-# 💻 CogniDB cURL & REST API Example
+# 💻 SyntricDB cURL & REST API Example
 
-This example demonstrates how to interact with **CogniDB** directly via HTTP REST API using `curl`.
+This example demonstrates how to interact with **SyntricDB** directly via HTTP REST API using `curl`.
 
 ---
 
 ## 🛠️ How to Run
 
-1. Make sure CogniDB is running locally:
+1. Make sure SyntricDB is running locally:
    ```bash
-   cognidb start
+   syntricdb start
    ```
 
 2. Run the shell script:

@@ -40,13 +40,13 @@ def render_clips():
         for clip in clip_files:
             f.write(f"file '{clip}'\n")
             
-    print("Concatenating tab clips into cognidb_studio_tab_by_tab_demo.mp4...")
+    print("Concatenating tab clips into syntricdb_studio_tab_by_tab_demo.mp4...")
     concat_cmd = [
         "ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", "concat_list.txt",
-        "-c", "copy", "cognidb_studio_tab_by_tab_demo.mp4"
+        "-c", "copy", "syntricdb_studio_tab_by_tab_demo.mp4"
     ]
     subprocess.run(concat_cmd, check=True)
-    print("FINISHED! cognidb_studio_tab_by_tab_demo.mp4 is generated with perfect tab switches!")
+    print("FINISHED! syntricdb_studio_tab_by_tab_demo.mp4 is generated with perfect tab switches!")
 
 if __name__ == "__main__":
     render_clips()

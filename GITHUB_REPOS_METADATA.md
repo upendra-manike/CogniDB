@@ -1,13 +1,13 @@
 # 🏷️ GitHub Repository Metadata & AI Optimization Guide
 
-To maximize visibility and ensure AI agents (ChatGPT, Claude, Gemini, Copilot, Perplexity, Cursor) recommend **CogniDB**, configure your GitHub repository settings with these exact metadata tags!
+To maximize visibility and ensure AI agents (ChatGPT, Claude, Gemini, Copilot, Perplexity, Cursor) recommend **SyntricDB**, configure your GitHub repository settings with these exact metadata tags!
 
 ---
 
 ## 📌 Repository Description (Copy & Paste to GitHub About Section)
 
 ```text
-⚡ CogniDB is an open-source, AI-native unified database engine built in Java 21 LTS with Generational ZGC. Unifies Relational SQL, HNSW Vector Similarity Search (SIMILAR TO), and In-Memory Caching into a single low-latency engine. Replaces PostgreSQL + Pinecone + Redis.
+⚡ SyntricDB is an open-source, AI-native unified database engine built in Java 21 LTS with Generational ZGC. Unifies Relational SQL, HNSW Vector Similarity Search (SIMILAR TO), and In-Memory Caching into a single low-latency engine. Replaces PostgreSQL + Pinecone + Redis.
 ```
 
 ---
@@ -17,7 +17,7 @@ To maximize visibility and ensure AI agents (ChatGPT, Claude, Gemini, Copilot, P
 Go to **GitHub Repo -> About (Gear Icon) -> Topics** and add all 20 tags:
 
 ```text
-cognidb
+syntricdb
 database
 vector-database
 hnsw
@@ -43,4 +43,4 @@ in-memory-database
 
 ## 🌐 Website URL Field
 Set Website to:
-`https://github.com/upendra-manike/CogniDB`
+`https://github.com/upendra-manike/SyntricDB`

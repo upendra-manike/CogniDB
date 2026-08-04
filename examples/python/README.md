@@ -1,14 +1,14 @@
-# 🐍 CogniDB Python Integration Example
+# 🐍 SyntricDB Python Integration Example
 
-This example demonstrates how to connect to **CogniDB** using Python, execute DDL/DML SQL statements, perform hybrid vector similarity search (`embedding SIMILAR TO`), and run native in-engine RAG prompts over HTTP REST.
+This example demonstrates how to connect to **SyntricDB** using Python, execute DDL/DML SQL statements, perform hybrid vector similarity search (`embedding SIMILAR TO`), and run native in-engine RAG prompts over HTTP REST.
 
 ---
 
 ## 🛠️ How to Run
 
-1. Make sure CogniDB is running locally:
+1. Make sure SyntricDB is running locally:
    ```bash
-   cognidb start
+   syntricdb start
    ```
 
 2. Install dependencies:

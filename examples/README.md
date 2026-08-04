@@ -1,6 +1,6 @@
-# 💻 CogniDB Multi-Language Code Examples Repository
+# 💻 SyntricDB Multi-Language Code Examples Repository
 
-Welcome to the official **CogniDB Examples Repository**! This folder contains fully functional, production-ready code examples demonstrating how to integrate CogniDB across multiple programming languages and frameworks.
+Welcome to the official **SyntricDB Examples Repository**! This folder contains fully functional, production-ready code examples demonstrating how to integrate SyntricDB across multiple programming languages and frameworks.
 
 ---
 
@@ -20,9 +20,9 @@ Welcome to the official **CogniDB Examples Repository**! This folder contains fu
 
 ## ⚡ Quickstart Testing
 
-Start your local CogniDB instance:
+Start your local SyntricDB instance:
 ```bash
-cognidb start
+syntricdb start
 ```
 
 Run any of the language examples in their respective subdirectories!
