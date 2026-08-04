@@ -59,7 +59,7 @@ public class StorageEngine implements AutoCloseable {
             ColumnDef def = schema.getColumn(vectorCol);
             int dim = def.getVectorDimension() > 0 ? def.getVectorDimension() : 128;
             HNSWIndex hnsw = new HNSWIndex(dim, DistanceMetric.COSINE);
-            vectorIndexes.put(tableName + "." + vectorCol, hnsw);
+            vectorIndexes.put(tableName.toLowerCase() + "." + vectorCol.toLowerCase(), hnsw);
             log.info("Initialized HNSW Vector Index for {}.{} (Dimension={})", tableName, vectorCol, dim);
         }
 
@@ -104,7 +104,7 @@ public class StorageEngine implements AutoCloseable {
         if (vectorCol != null) {
             float[] vec = tuple.getVector(vectorCol);
             if (vec != null) {
-                HNSWIndex hnsw = vectorIndexes.get(tableName + "." + vectorCol);
+                HNSWIndex hnsw = vectorIndexes.get(tableName.toLowerCase() + "." + vectorCol.toLowerCase());
                 if (hnsw != null) {
                     hnsw.insert(keyStr, vec);
                 }
