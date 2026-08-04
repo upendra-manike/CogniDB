@@ -8,6 +8,9 @@ import com.syntricdb.engine.schema.Tuple;
 import com.syntricdb.net.NettyServer;
 import com.syntricdb.sql.QueryExecutor;
 
+import com.syntricdb.config.SyntricConfig;
+import com.syntricdb.security.SecurityManager;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,6 +20,8 @@ import java.nio.file.Paths;
 public class SyntricDBServer {
     private static final Logger log = LoggerFactory.getLogger(SyntricDBServer.class);
 
+    private final SyntricConfig config;
+    private final SecurityManager securityManager;
     private final StorageEngine storageEngine;
     private final AIEngine aiEngine;
     private final QueryExecutor queryExecutor;
@@ -24,11 +29,13 @@ public class SyntricDBServer {
     private final NettyServer nettyServer;
 
     public SyntricDBServer(int port, Path dataDir) throws Exception {
+        this.config = new SyntricConfig();
+        this.securityManager = new SecurityManager(config);
         this.storageEngine = new StorageEngine(dataDir);
         this.aiEngine = new AIEngine(128);
         this.queryExecutor = new QueryExecutor(storageEngine, aiEngine);
         this.clusterState = new ClusterState();
-        this.nettyServer = new NettyServer(port, storageEngine, aiEngine, queryExecutor, clusterState);
+        this.nettyServer = new NettyServer(port, storageEngine, aiEngine, queryExecutor, clusterState, securityManager, config);
     }
 
     public void start(boolean startCli) throws Exception {
@@ -45,9 +52,10 @@ public class SyntricDBServer {
 
         log.info("==========================================================================");
         log.info("⚡ SyntricDB Next-Gen Unified AI-Native Engine is Ready ⚡");
-        log.info("🌐 Web Console & SQL Studio: http://localhost:8080/");
-        log.info("📡 REST Query API: POST http://localhost:8080/api/sql");
-        log.info("🔍 HNSW Vector API: POST http://localhost:8080/api/vector/search");
+        log.info("🔑 Configured Admin User : {}", config.getAdminUser());
+        log.info("🌐 Web Console & Studio  : http://localhost:{}/", config.getPort());
+        log.info("📡 REST Query API        : POST http://localhost:{}/api/sql", config.getPort());
+        log.info("🔍 HNSW Vector API       : POST http://localhost:{}/api/vector/search", config.getPort());
         log.info("==========================================================================");
 
         if (startCli) {

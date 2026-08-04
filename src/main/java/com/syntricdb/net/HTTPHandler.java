@@ -9,6 +9,9 @@ import com.syntricdb.engine.stream.StreamEngine;
 import com.syntricdb.engine.vector.HNSWIndex;
 import com.syntricdb.sql.QueryExecutor;
 
+import com.syntricdb.config.SyntricConfig;
+import com.syntricdb.security.SecurityManager;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
@@ -31,19 +34,36 @@ public class HTTPHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
     private final AIEngine aiEngine;
     private final QueryExecutor queryExecutor;
     private final ClusterState clusterState;
+    private final SecurityManager securityManager;
+    private final SyntricConfig config;
     private final ObjectMapper jsonMapper = new ObjectMapper();
 
     public HTTPHandler(StorageEngine storageEngine, AIEngine aiEngine, QueryExecutor queryExecutor, ClusterState clusterState) {
+        this(storageEngine, aiEngine, queryExecutor, clusterState, new SecurityManager(), new SyntricConfig());
+    }
+
+    public HTTPHandler(StorageEngine storageEngine, AIEngine aiEngine, QueryExecutor queryExecutor, ClusterState clusterState, SecurityManager securityManager, SyntricConfig config) {
         this.storageEngine = storageEngine;
         this.aiEngine = aiEngine;
         this.queryExecutor = queryExecutor;
         this.clusterState = clusterState;
+        this.config = config != null ? config : new SyntricConfig();
+        this.securityManager = securityManager != null ? securityManager : new SecurityManager(this.config);
     }
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest req) throws Exception {
         String uri = req.uri();
         HttpMethod method = req.method();
+
+        if (method == HttpMethod.OPTIONS) {
+            FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, OK);
+            response.headers().set(HttpHeaderNames.ACCESS_CONTROL_ALLOW_ORIGIN, "*");
+            response.headers().set(HttpHeaderNames.ACCESS_CONTROL_ALLOW_METHODS, "GET, POST, OPTIONS");
+            response.headers().set(HttpHeaderNames.ACCESS_CONTROL_ALLOW_HEADERS, "Content-Type, Authorization, X-Syntric-Auth");
+            ctx.writeAndFlush(response);
+            return;
+        }
 
         if (uri.startsWith("/api/")) {
             handleApi(ctx, req);
@@ -54,6 +74,32 @@ public class HTTPHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
         handleStaticWeb(ctx, req);
     }
 
+    private String authenticateRequest(FullHttpRequest req) {
+        String authHeader = req.headers().get(HttpHeaderNames.AUTHORIZATION);
+        if (authHeader != null && authHeader.startsWith("Basic ")) {
+            try {
+                String base64Credentials = authHeader.substring(6).trim();
+                byte[] decoded = Base64.getDecoder().decode(base64Credentials);
+                String credentials = new String(decoded, StandardCharsets.UTF_8);
+                String[] parts = credentials.split(":", 2);
+                if (parts.length == 2) {
+                    if (securityManager.authenticateUser(parts[0], parts[1])) {
+                        return parts[0];
+                    }
+                }
+            } catch (Exception ignored) {}
+        }
+
+        String apiKey = req.headers().get("X-Syntric-Auth");
+        if (apiKey != null) {
+            if (securityManager.validateApiKey(apiKey, SecurityManager.Role.READ_WRITE)) {
+                return "api_key_user";
+            }
+        }
+
+        return null;
+    }
+
     private void handleApi(ChannelHandlerContext ctx, FullHttpRequest req) throws Exception {
         String uri = req.uri();
         String body = req.content().toString(CharsetUtil.UTF_8);
@@ -61,6 +107,49 @@ public class HTTPHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
         Map<String, Object> responseMap = new LinkedHashMap<>();
 
         try {
+            if ("/api/auth/login".equals(uri) && req.method() == HttpMethod.POST) {
+                Map<String, Object> reqJson = jsonMapper.readValue(body, Map.class);
+                String username = reqJson.getOrDefault("username", "").toString();
+                String password = reqJson.getOrDefault("password", "").toString();
+
+                if (securityManager.authenticateUser(username, password)) {
+                    String token = Base64.getEncoder().encodeToString((username + ":" + password).getBytes(StandardCharsets.UTF_8));
+                    sendJsonResponse(ctx, OK, Map.of(
+                        "success", true,
+                        "username", username,
+                        "token", "Basic " + token,
+                        "message", "Authentication successful"
+                    ));
+                } else {
+                    sendJsonResponse(ctx, UNAUTHORIZED, Map.of(
+                        "success", false,
+                        "error", "Invalid username or password"
+                    ));
+                }
+                return;
+            }
+
+            if ("/api/auth/verify".equals(uri) && req.method() == HttpMethod.GET) {
+                String user = authenticateRequest(req);
+                if (user != null) {
+                    sendJsonResponse(ctx, OK, Map.of("success", true, "username", user));
+                } else {
+                    sendJsonResponse(ctx, UNAUTHORIZED, Map.of("success", false, "error", "Unauthorized"));
+                }
+                return;
+            }
+
+            if (config.isAuthEnabled()) {
+                String authenticatedUser = authenticateRequest(req);
+                if (authenticatedUser == null) {
+                    sendJsonResponse(ctx, UNAUTHORIZED, Map.of(
+                        "success", false,
+                        "error", "Unauthorized. Please log in to SyntricDB Web Studio with valid credentials."
+                    ));
+                    return;
+                }
+            }
+
             if ("/api/sql".equals(uri) && req.method() == HttpMethod.POST) {
                 Map<String, Object> reqJson = jsonMapper.readValue(body, Map.class);
                 String sql = reqJson.get("sql").toString();

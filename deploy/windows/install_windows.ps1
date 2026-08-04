@@ -27,14 +27,22 @@ try {
     winget install EclipseAdoptium.Temurin.21.JDK --silent --accept-package-agreements --accept-source-agreements
 }
 
-# 3. Create Default Configuration File
-if (-not (Test-Path $ConfFile)) {
-    $configContent = @"
+# 3. Setup Configuration File with Custom Credentials
+Write-Host "🔐 Setting up Database Administrator Credentials:" -ForegroundColor Yellow
+$inputUser = Read-Host "   • Admin Username [default: admin]"
+$AdminUser = if ([string]::IsNullOrWhiteSpace($inputUser)) { "admin" } else { $inputUser }
+
+$inputPass = Read-Host "   • Admin Password [default: syntricdb_secret_pass]" -AsSecureString
+$BSTR = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($inputPass)
+$PlainPass = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($BSTR)
+$AdminPass = if ([string]::IsNullOrWhiteSpace($PlainPass)) { "syntricdb_secret_pass" } else { $PlainPass }
+
+$configContent = @"
 bind_address=0.0.0.0
 port=8080
 auth_enabled=true
-admin_user=admin
-admin_password=syntricdb_secret_pass
+admin_user=$AdminUser
+admin_password=$AdminPass
 data_dir=$ConfigDir\data
 wal_dir=$ConfigDir\wal
 snapshot_dir=$ConfigDir\snapshots
@@ -42,9 +50,8 @@ firewall_enabled=true
 rate_limit_per_sec=1000
 dlp_masking_enabled=true
 "@
-    Set-Content -Path $ConfFile -Value $configContent
-    Write-Host "✅ Configuration saved to $ConfFile" -ForegroundColor Green
-}
+Set-Content -Path $ConfFile -Value $configContent
+Write-Host "✅ Configuration saved to $ConfFile" -ForegroundColor Green
 
 # 4. Copy JAR
 if (Test-Path "target\syntricdb-engine-1.0.0-SNAPSHOT.jar") {

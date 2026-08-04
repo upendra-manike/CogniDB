@@ -26,15 +26,27 @@ sudo useradd -r -s /bin/false syntricdb 2>/dev/null || true
 sudo mkdir -p /etc/syntricdb /var/lib/syntricdb/data /var/lib/syntricdb/wal /var/lib/syntricdb/snapshots /usr/share/syntricdb /var/log/syntricdb
 sudo chown -R syntricdb:syntricdb /var/lib/syntricdb /var/log/syntricdb
 
-# 3. Create default production config
-if [ ! -f /etc/syntricdb/syntricdb.conf ]; then
-    echo "🔐 Creating production configuration at /etc/syntricdb/syntricdb.conf..."
-    cat << EOF | sudo tee /etc/syntricdb/syntricdb.conf > /dev/null
+# 3. Create production config with custom credentials
+if [ -t 0 ] && [ -z "$SYNTRICDB_NON_INTERACTIVE" ]; then
+    echo "🔐 Setting up Database Administrator Credentials:"
+    read -p "   • Admin Username [default: admin]: " ADMIN_USER
+    ADMIN_USER=${ADMIN_USER:-admin}
+
+    read -sp "   • Admin Password [default: syntricdb_secret_pass]: " ADMIN_PASS
+    echo ""
+    ADMIN_PASS=${ADMIN_PASS:-syntricdb_secret_pass}
+else
+    ADMIN_USER=${SYNTRICDB_ADMIN_USER:-admin}
+    ADMIN_PASS=${SYNTRICDB_ADMIN_PASSWORD:-syntricdb_secret_pass}
+fi
+
+echo "🔐 Creating production configuration at /etc/syntricdb/syntricdb.conf..."
+cat << EOF | sudo tee /etc/syntricdb/syntricdb.conf > /dev/null
 bind_address=0.0.0.0
 port=8080
 auth_enabled=true
-admin_user=admin
-admin_password=$(openssl rand -hex 12 2>/dev/null || echo "SyntricDB_Pass_2026!")
+admin_user=$ADMIN_USER
+admin_password=$ADMIN_PASS
 data_dir=/var/lib/syntricdb/data
 wal_dir=/var/lib/syntricdb/wal
 snapshot_dir=/var/lib/syntricdb/snapshots
@@ -42,7 +54,6 @@ firewall_enabled=true
 rate_limit_per_sec=1000
 dlp_masking_enabled=true
 EOF
-fi
 
 # 4. Copy engine jar
 if [ -f "target/syntricdb-engine-1.0.0-SNAPSHOT.jar" ]; then

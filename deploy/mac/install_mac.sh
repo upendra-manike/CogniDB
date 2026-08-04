@@ -28,20 +28,35 @@ if ! command -v java &> /dev/null; then
     fi
 fi
 
-# 2. Setup Default Configuration if not existing
-if [ ! -f "$CONF_FILE" ]; then
-    cat << EOF > "$CONF_FILE"
+# 2. Setup Configuration with Custom Credentials
+if [ -t 0 ] && [ -z "$SYNTRICDB_NON_INTERACTIVE" ]; then
+    echo "🔐 Setting up Database Administrator Credentials:"
+    read -p "   • Admin Username [default: admin]: " ADMIN_USER
+    ADMIN_USER=${ADMIN_USER:-admin}
+
+    read -sp "   • Admin Password [default: syntricdb_secret_pass]: " ADMIN_PASS
+    echo ""
+    ADMIN_PASS=${ADMIN_PASS:-syntricdb_secret_pass}
+
+    read -p "   • Database Port [default: 8080]: " ADMIN_PORT
+    ADMIN_PORT=${ADMIN_PORT:-8080}
+else
+    ADMIN_USER=${SYNTRICDB_ADMIN_USER:-admin}
+    ADMIN_PASS=${SYNTRICDB_ADMIN_PASSWORD:-syntricdb_secret_pass}
+    ADMIN_PORT=${SYNTRICDB_PORT:-8080}
+fi
+
+cat << EOF > "$CONF_FILE"
 bind_address=0.0.0.0
-port=8080
+port=$ADMIN_PORT
 auth_enabled=true
-admin_user=admin
-admin_password=syntricdb_secret_pass
+admin_user=$ADMIN_USER
+admin_password=$ADMIN_PASS
 data_dir=$SYNTRICDB_DIR/data
 wal_dir=$SYNTRICDB_DIR/wal
 snapshot_dir=$SYNTRICDB_DIR/snapshots
 EOF
-    echo "✅ Created configuration at $CONF_FILE"
-fi
+echo "✅ Created configuration at $CONF_FILE"
 
 # 3. Copy/Build JAR
 if [ -f "target/syntricdb-engine-1.0.0-SNAPSHOT.jar" ]; then

@@ -46,6 +46,10 @@
                 <div class="status-indicator">
                     <span class="dot green"></span> Engine Status: <strong>Online</strong>
                 </div>
+                <div class="user-session-badge" id="user-session-badge" style="display:none;">
+                    <span class="user-icon">👤</span> <strong id="user-display-name">admin</strong>
+                    <button class="btn-logout" onclick="logoutStudio()">Logout</button>
+                </div>
                 <div class="engine-info">
                     <span>Java 21 + Netty + HNSW + LSM</span>
                 </div>
@@ -289,6 +293,34 @@
                 </div>
             </section>
         </main>
+    </div>
+
+    <!-- Studio Authentication Modal -->
+    <div id="login-modal" class="modal-overlay" style="display:flex;">
+        <div class="modal-card">
+            <div class="modal-header">
+                <div class="modal-logo">⚡</div>
+                <h2>SyntricDB Studio Authentication</h2>
+                <p>Enter your database administrator credentials to access the console</p>
+            </div>
+            <div class="modal-body">
+                <div id="login-error-banner" class="alert-error" style="display:none;"></div>
+                <div class="form-group">
+                    <label for="login-username">Database Username</label>
+                    <input type="text" id="login-username" placeholder="e.g. admin" value="admin" autocomplete="username">
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Database Password</label>
+                    <input type="password" id="login-password" placeholder="Enter password..." autocomplete="current-password">
+                </div>
+                <button id="login-submit-btn" class="btn btn-primary btn-block btn-large" onclick="submitStudioLogin()">
+                    🔐 Unlock Studio Console
+                </button>
+            </div>
+            <div class="modal-footer">
+                <p>💡 Default installation password is <code>syntricdb_secret_pass</code> if not customized during setup.</p>
+            </div>
+        </div>
     </div>
 
     <script src="app.js"></script>

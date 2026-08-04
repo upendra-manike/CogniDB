@@ -1,14 +1,157 @@
 // SyntricDB Web Studio JavaScript Client Engine
 
+let authToken = localStorage.getItem('syntricdb_auth_token') || '';
+let currentUser = localStorage.getItem('syntricdb_user') || '';
+
 document.addEventListener('DOMContentLoaded', () => {
     initNavigation();
-    refreshClusterStats();
-    loadTables();
-    renderVectorCanvas();
+    initAuth();
 
-    // Auto-refresh stats every 10 seconds
-    setInterval(refreshClusterStats, 10000);
+    // Auto-refresh stats every 10 seconds if logged in
+    setInterval(() => {
+        if (authToken) {
+            refreshClusterStats();
+        }
+    }, 10000);
 });
+
+async function initAuth() {
+    const passwordInput = document.getElementById('login-password');
+    if (passwordInput) {
+        passwordInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                submitStudioLogin();
+            }
+        });
+    }
+
+    if (authToken) {
+        try {
+            const res = await fetchWithAuth('/api/auth/verify');
+            const data = await res.json();
+            if (data.success) {
+                currentUser = data.username || currentUser;
+                showAuthenticatedState();
+                refreshClusterStats();
+                loadTables();
+                renderVectorCanvas();
+                return;
+            }
+        } catch (e) {
+            console.warn('Auth verify error:', e);
+        }
+    }
+    showLoginModal();
+}
+
+function getAuthHeaders(extraHeaders = {}) {
+    const headers = { 'Content-Type': 'application/json', ...extraHeaders };
+    if (authToken) {
+        headers['Authorization'] = authToken;
+    }
+    return headers;
+}
+
+async function fetchWithAuth(url, options = {}) {
+    options.headers = getAuthHeaders(options.headers || {});
+    const response = await fetch(url, options);
+    if (response.status === 401 && url !== '/api/auth/login') {
+        showLoginModal('Session expired or invalid credentials. Please log in.');
+    }
+    return response;
+}
+
+async function submitStudioLogin() {
+    const usernameInput = document.getElementById('login-username');
+    const passwordInput = document.getElementById('login-password');
+    const errorBanner = document.getElementById('login-error-banner');
+    const submitBtn = document.getElementById('login-submit-btn');
+
+    const username = usernameInput ? usernameInput.value.trim() : 'admin';
+    const password = passwordInput ? passwordInput.value : '';
+
+    if (!username || !password) {
+        if (errorBanner) {
+            errorBanner.style.display = 'block';
+            errorBanner.textContent = 'Please enter both username and password.';
+        }
+        return;
+    }
+
+    if (submitBtn) submitBtn.disabled = true;
+
+    try {
+        const res = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+            authToken = data.token;
+            currentUser = data.username;
+            localStorage.setItem('syntricdb_auth_token', authToken);
+            localStorage.setItem('syntricdb_user', currentUser);
+
+            if (errorBanner) errorBanner.style.display = 'none';
+            showAuthenticatedState();
+            refreshClusterStats();
+            loadTables();
+            renderVectorCanvas();
+        } else {
+            if (errorBanner) {
+                errorBanner.style.display = 'block';
+                errorBanner.textContent = data.error || 'Invalid credentials. Please try again.';
+            }
+        }
+    } catch (e) {
+        console.error('Login error:', e);
+        if (errorBanner) {
+            errorBanner.style.display = 'block';
+            errorBanner.textContent = 'Unable to connect to SyntricDB server. Is the engine running?';
+        }
+    } finally {
+        if (submitBtn) submitBtn.disabled = false;
+    }
+}
+
+function showLoginModal(errorMsg = '') {
+    const modal = document.getElementById('login-modal');
+    const errorBanner = document.getElementById('login-error-banner');
+    if (modal) modal.style.display = 'flex';
+    if (errorBanner) {
+        if (errorMsg) {
+            errorBanner.style.display = 'block';
+            errorBanner.textContent = errorMsg;
+        } else {
+            errorBanner.style.display = 'none';
+        }
+    }
+}
+
+function showAuthenticatedState() {
+    const modal = document.getElementById('login-modal');
+    const userBadge = document.getElementById('user-session-badge');
+    const userNameElem = document.getElementById('user-display-name');
+
+    if (modal) modal.style.display = 'none';
+    if (userBadge) userBadge.style.display = 'flex';
+    if (userNameElem) userNameElem.textContent = currentUser || 'admin';
+}
+
+function logoutStudio() {
+    authToken = '';
+    currentUser = '';
+    localStorage.removeItem('syntricdb_auth_token');
+    localStorage.removeItem('syntricdb_user');
+
+    const userBadge = document.getElementById('user-session-badge');
+    if (userBadge) userBadge.style.display = 'none';
+
+    showLoginModal('Logged out successfully.');
+}
 
 function initNavigation() {
     const navItems = document.querySelectorAll('.nav-item');
@@ -78,7 +221,7 @@ function switchTab(tabId) {
 
 async function refreshClusterStats() {
     try {
-        const res = await fetch('/api/cluster');
+        const res = await fetchWithAuth('/api/cluster');
         const data = await res.json();
 
         if (data.success) {
@@ -149,9 +292,8 @@ async function runSqlQuery() {
     timeBadge.textContent = 'Time: ...';
 
     try {
-        const res = await fetch('/api/sql', {
+        const res = await fetchWithAuth('/api/sql', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ sql })
         });
         const result = await res.json();
@@ -226,7 +368,7 @@ function renderErrorTable(errMsg) {
 
 async function loadTables() {
     try {
-        const res = await fetch('/api/tables');
+        const res = await fetchWithAuth('/api/tables');
         const data = await res.json();
         const container = document.getElementById('tables-container');
         if (!container) return;
@@ -277,9 +419,8 @@ async function renderVectorCanvas() {
 
     // Fetch vector points via SQL
     try {
-        const res = await fetch('/api/sql', {
+        const res = await fetchWithAuth('/api/sql', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ sql: "SELECT id, name, role, city FROM users" })
         });
         const result = await res.json();
@@ -336,9 +477,8 @@ async function searchVectorCanvas() {
     if (!query) return;
 
     try {
-        const res = await fetch('/api/vector/search', {
+        const res = await fetchWithAuth('/api/vector/search', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ table: 'users', column: 'embedding', query, limit: 3 })
         });
         const data = await res.json();
@@ -380,9 +520,8 @@ async function runBenchmarkTest() {
     btn.textContent = '🔥 Benchmarking in progress...';
 
     try {
-        const res = await fetch('/api/benchmark', {
+        const res = await fetchWithAuth('/api/benchmark', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ count: parseInt(count) })
         });
         const data = await res.json();
@@ -409,9 +548,8 @@ async function runRagQuery() {
     if (!prompt) return;
 
     try {
-        const res = await fetch('/api/ai/rag', {
+        const res = await fetchWithAuth('/api/ai/rag', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ table: 'users', column: 'embedding', prompt, limit: 3 })
         });
         const data = await res.json();
@@ -425,4 +563,3 @@ async function runRagQuery() {
         console.error('RAG Query Error:', e);
     }
 }
-

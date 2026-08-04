@@ -12,6 +12,16 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.http.*;
 import org.slf4j.Logger;
+import com.syntricdb.config.SyntricConfig;
+import com.syntricdb.security.SecurityManager;
+
+import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.*;
+import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.SocketChannel;
+import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.codec.http.*;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class NettyServer {
@@ -22,17 +32,25 @@ public class NettyServer {
     private final AIEngine aiEngine;
     private final QueryExecutor queryExecutor;
     private final ClusterState clusterState;
+    private final SecurityManager securityManager;
+    private final SyntricConfig config;
 
     private EventLoopGroup bossGroup;
     private EventLoopGroup workerGroup;
     private Channel channel;
 
     public NettyServer(int port, StorageEngine storageEngine, AIEngine aiEngine, QueryExecutor queryExecutor, ClusterState clusterState) {
+        this(port, storageEngine, aiEngine, queryExecutor, clusterState, new SecurityManager(), new SyntricConfig());
+    }
+
+    public NettyServer(int port, StorageEngine storageEngine, AIEngine aiEngine, QueryExecutor queryExecutor, ClusterState clusterState, SecurityManager securityManager, SyntricConfig config) {
         this.port = port;
         this.storageEngine = storageEngine;
         this.aiEngine = aiEngine;
         this.queryExecutor = queryExecutor;
         this.clusterState = clusterState;
+        this.config = config != null ? config : new SyntricConfig();
+        this.securityManager = securityManager != null ? securityManager : new SecurityManager(this.config);
     }
 
     public void start() throws InterruptedException {
@@ -48,7 +66,7 @@ public class NettyServer {
                  ChannelPipeline p = ch.pipeline();
                  p.addLast(new HttpServerCodec());
                  p.addLast(new HttpObjectAggregator(10 * 1024 * 1024)); // 10MB payload max
-                 p.addLast(new HTTPHandler(storageEngine, aiEngine, queryExecutor, clusterState));
+                 p.addLast(new HTTPHandler(storageEngine, aiEngine, queryExecutor, clusterState, securityManager, config));
              }
          })
          .option(ChannelOption.SO_BACKLOG, 1024)

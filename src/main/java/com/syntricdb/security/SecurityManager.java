@@ -65,13 +65,21 @@ public class SecurityManager {
     private boolean dlpEnabled = true;
 
     public SecurityManager() {
-        // Default Master Keys for demonstration
+        this("admin", "syntricdb_secret_pass");
+    }
+
+    public SecurityManager(com.syntricdb.config.SyntricConfig config) {
+        this(config != null ? config.getAdminUser() : "admin", config != null ? config.getAdminPassword() : "syntricdb_secret_pass");
+    }
+
+    public SecurityManager(String adminUser, String adminPassword) {
+        // Master Keys for demonstration
         apiKeys.put("syntric_master_key_99", Role.ADMIN);
         apiKeys.put("syntric_rw_key_22", Role.READ_WRITE);
         apiKeys.put("syntric_ro_key_11", Role.READ_ONLY);
 
-        // Default Admin User
-        createUser("admin", "syntricdb_secret_pass", Role.ADMIN);
+        // Admin User from configuration
+        createUser(adminUser != null ? adminUser : "admin", adminPassword != null ? adminPassword : "syntricdb_secret_pass", Role.ADMIN);
     }
 
     // --- 1. CONNECTION STRING PARSER ---
