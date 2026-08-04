@@ -19,6 +19,8 @@ deploy/clients/python/build/
 deploy/clients/python/dist/
 deploy/clients/python/*.egg-info/
 deploy/clients/nodejs/*.tgz
+deploy/clients/java/target/
+
 
 # Maven build outputs
 target/
