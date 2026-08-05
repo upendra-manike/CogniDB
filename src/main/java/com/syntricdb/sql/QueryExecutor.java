@@ -169,6 +169,29 @@ public class QueryExecutor {
             return new QueryResult(Collections.emptyList(), null, elapsed, "Message published to stream topic '" + pub.getTopic() + "'.");
         }
 
+        if (stmt instanceof AST.UpdateStatement) {
+            AST.UpdateStatement updateStmt = (AST.UpdateStatement) stmt;
+            String[] target = resolveDbAndTable(updateStmt.getTableName(), currentDb);
+            String targetDb = target[0];
+            String tableName = target[1];
+
+            int updatedRows = storageEngine.update(targetDb, tableName, updateStmt.getSetAssignments(), updateStmt.getWhereConditions());
+            long elapsed = System.nanoTime() - startTime;
+            return new QueryResult(Collections.emptyList(), null, elapsed, updatedRows + " rows updated in table '" + targetDb + "." + tableName + "'.");
+        }
+
+        if (stmt instanceof AST.DeleteStatement) {
+            AST.DeleteStatement deleteStmt = (AST.DeleteStatement) stmt;
+            String[] target = resolveDbAndTable(deleteStmt.getTableName(), currentDb);
+            String targetDb = target[0];
+            String tableName = target[1];
+
+            int deletedRows = storageEngine.delete(targetDb, tableName, deleteStmt.getWhereConditions());
+            long elapsed = System.nanoTime() - startTime;
+            return new QueryResult(Collections.emptyList(), null, elapsed, deletedRows + " rows deleted from table '" + targetDb + "." + tableName + "'.");
+        }
+
+
         if (stmt instanceof AST.SelectStatement) {
             AST.SelectStatement selectStmt = (AST.SelectStatement) stmt;
             String[] target = resolveDbAndTable(selectStmt.getTableName(), currentDb);

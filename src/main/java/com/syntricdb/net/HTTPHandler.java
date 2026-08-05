@@ -65,6 +65,37 @@ public class HTTPHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
             return;
         }
 
+        if ("/health".equals(uri) || "/api/health".equals(uri)) {
+            Map<String, Object> health = Map.of(
+                "status", "UP",
+                "database", "SyntricDB",
+                "version", "1.0.0-PROD",
+                "activeDatabasesCount", storageEngine.listDatabases().size(),
+                "jvmMemoryUsedBytes", Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()
+            );
+            sendJsonResponse(ctx, OK, health);
+            return;
+        }
+
+        if ("/metrics".equals(uri) || "/api/metrics".equals(uri)) {
+            String prometheusMetrics =
+                "# HELP syntricdb_read_ops_total Total read operations\n" +
+                "# TYPE syntricdb_read_ops_total counter\n" +
+                "syntricdb_read_ops_total " + storageEngine.getReadOpsCount() + "\n" +
+                "# HELP syntricdb_write_ops_total Total write operations\n" +
+                "# TYPE syntricdb_write_ops_total counter\n" +
+                "syntricdb_write_ops_total " + storageEngine.getWriteOpsCount() + "\n" +
+                "# HELP syntricdb_jvm_memory_used_bytes JVM memory used\n" +
+                "# TYPE syntricdb_jvm_memory_used_bytes gauge\n" +
+                "syntricdb_jvm_memory_used_bytes " + (Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory()) + "\n";
+
+            FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, OK, Unpooled.copiedBuffer(prometheusMetrics, CharsetUtil.UTF_8));
+            response.headers().set(HttpHeaderNames.CONTENT_TYPE, "text/plain; version=0.0.4; charset=utf-8");
+            response.headers().set(HttpHeaderNames.CONTENT_LENGTH, response.content().readableBytes());
+            ctx.writeAndFlush(response);
+            return;
+        }
+
         if (uri.startsWith("/api/")) {
             handleApi(ctx, req);
             return;
@@ -73,6 +104,7 @@ public class HTTPHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
         // Serve Static Web Dashboard UI
         handleStaticWeb(ctx, req);
     }
+
 
     private String authenticateRequest(FullHttpRequest req) {
         String authHeader = req.headers().get(HttpHeaderNames.AUTHORIZATION);

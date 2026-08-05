@@ -42,9 +42,14 @@ public class SQLParser {
             return parseInsert(trimmed);
         } else if (uppercase.startsWith("SELECT")) {
             return parseSelect(trimmed);
+        } else if (uppercase.startsWith("UPDATE")) {
+            return parseUpdate(trimmed);
+        } else if (uppercase.startsWith("DELETE")) {
+            return parseDelete(trimmed);
         } else if (uppercase.startsWith("PUBLISH INTO")) {
             return parseStreamPublish(trimmed);
         }
+
 
         throw new IllegalArgumentException("Unsupported SQL statement syntax: " + trimmed);
     }
@@ -319,7 +324,63 @@ public class SQLParser {
         if (val == null) return null;
         try { return Integer.parseInt(val); } catch (Exception ignored) {}
         try { return Double.parseDouble(val); } catch (Exception ignored) {}
-        if ("true".equalsIgnoreCase(val) || "false".equalsIgnoreCase(val)) return Boolean.parseBoolean(val);
+        if ("true".equalsIgnoreCase(val) || "false".equalsIgnoreCase(val)) {
+            return Boolean.parseBoolean(val);
+        }
         return val;
+    }
+
+    private AST.UpdateStatement parseUpdate(String sql) {
+        Pattern p = Pattern.compile("UPDATE\\s+([a-zA-Z0-9_\\.]+)\\s+SET\\s+(.*?)(?:\\s+WHERE\\s+(.*))?$", Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+        Matcher m = p.matcher(sql);
+        if (!m.find()) {
+            throw new IllegalArgumentException("Invalid UPDATE syntax.");
+        }
+        String tableName = m.group(1).trim();
+        String setBody = m.group(2).trim();
+        String whereBody = m.group(3) != null ? m.group(3).trim() : null;
+
+        AST.UpdateStatement stmt = new AST.UpdateStatement(tableName);
+        String[] assignments = setBody.split(",");
+        for (String assign : assignments) {
+            String[] kv = assign.split("=");
+            if (kv.length == 2) {
+                stmt.addAssignment(kv[0].trim(), parseLiteral(unquote(kv[1].trim())));
+            }
+        }
+        if (whereBody != null && !whereBody.isBlank()) {
+            String[] conds = whereBody.split("(?i)\\s+AND\\s+");
+            for (String cond : conds) {
+                Pattern scalarP = Pattern.compile("([a-zA-Z0-9_]+)\\s*(=|!=|>|<|>=|<=)\\s*(.*)");
+                Matcher scalarM = scalarP.matcher(cond.trim());
+                if (scalarM.find()) {
+                    stmt.getWhereConditions().add(new AST.Condition(scalarM.group(1), scalarM.group(2), parseLiteral(unquote(scalarM.group(3)))));
+                }
+            }
+        }
+        return stmt;
+    }
+
+    private AST.DeleteStatement parseDelete(String sql) {
+        Pattern p = Pattern.compile("DELETE\\s+FROM\\s+([a-zA-Z0-9_\\.]+)(?:\\s+WHERE\\s+(.*))?$", Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+        Matcher m = p.matcher(sql);
+        if (!m.find()) {
+            throw new IllegalArgumentException("Invalid DELETE syntax.");
+        }
+        String tableName = m.group(1).trim();
+        String whereBody = m.group(2) != null ? m.group(2).trim() : null;
+
+        AST.DeleteStatement stmt = new AST.DeleteStatement(tableName);
+        if (whereBody != null && !whereBody.isBlank()) {
+            String[] conds = whereBody.split("(?i)\\s+AND\\s+");
+            for (String cond : conds) {
+                Pattern scalarP = Pattern.compile("([a-zA-Z0-9_]+)\\s*(=|!=|>|<|>=|<=)\\s*(.*)");
+                Matcher scalarM = scalarP.matcher(cond.trim());
+                if (scalarM.find()) {
+                    stmt.getWhereConditions().add(new AST.Condition(scalarM.group(1), scalarM.group(2), parseLiteral(unquote(scalarM.group(3)))));
+                }
+            }
+        }
+        return stmt;
     }
 }

@@ -232,6 +232,62 @@ public class HNSWIndex {
     public int getDimension() { return dimension; }
     public Map<String, float[]> getAllVectors() { return Collections.unmodifiableMap(vectors); }
 
+    public synchronized void remove(String id) {
+        vectors.remove(id);
+        nodeLevels.remove(id);
+        List<Set<String>> layers = graph.remove(id);
+        if (layers != null) {
+            for (Set<String> neighborSet : layers) {
+                for (String neighborId : neighborSet) {
+                    List<Set<String>> nLayers = graph.get(neighborId);
+                    if (nLayers != null) {
+                        for (Set<String> s : nLayers) {
+                            s.remove(id);
+                        }
+                    }
+                }
+            }
+        }
+        if (id.equals(entryPoint)) {
+            entryPoint = vectors.isEmpty() ? null : vectors.keySet().iterator().next();
+        }
+    }
+
+    public synchronized void saveToFile(java.nio.file.Path file) throws java.io.IOException {
+        if (file.getParent() != null) {
+            java.nio.file.Files.createDirectories(file.getParent());
+        }
+        Map<String, Object> data = new HashMap<>();
+        data.put("dimension", dimension);
+        data.put("metric", metric.name());
+        Map<String, List<Float>> vecMap = new HashMap<>();
+        for (Map.Entry<String, float[]> e : vectors.entrySet()) {
+            List<Float> list = new ArrayList<>(e.getValue().length);
+            for (float f : e.getValue()) list.add(f);
+            vecMap.put(e.getKey(), list);
+        }
+        data.put("vectors", vecMap);
+        new com.fasterxml.jackson.databind.ObjectMapper().writeValue(file.toFile(), data);
+    }
+
+    @SuppressWarnings("unchecked")
+    public synchronized void loadFromFile(java.nio.file.Path file) throws java.io.IOException {
+        if (!java.nio.file.Files.exists(file)) return;
+        com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+        Map<String, Object> data = mapper.readValue(file.toFile(), Map.class);
+        Map<String, List<Double>> vecMap = (Map<String, List<Double>>) data.get("vectors");
+        if (vecMap != null) {
+            for (Map.Entry<String, List<Double>> e : vecMap.entrySet()) {
+                List<Double> list = e.getValue();
+                float[] arr = new float[list.size()];
+                for (int i = 0; i < list.size(); i++) {
+                    arr[i] = list.get(i).floatValue();
+                }
+                insert(e.getKey(), arr);
+            }
+        }
+    }
+
     private static class Candidate {
         final String id;
         final float distance;
@@ -242,3 +298,4 @@ public class HNSWIndex {
         }
     }
 }
+

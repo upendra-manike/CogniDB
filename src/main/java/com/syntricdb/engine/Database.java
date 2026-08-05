@@ -51,11 +51,21 @@ public class Database {
             ColumnDef def = schema.getColumn(vectorCol);
             int dim = def.getVectorDimension() > 0 ? def.getVectorDimension() : 128;
             HNSWIndex hnsw = new HNSWIndex(dim, DistanceMetric.COSINE);
+            Path vecIndexPath = tableDataPath.resolve("vector_" + vectorCol.toLowerCase() + ".json");
+            if (java.nio.file.Files.exists(vecIndexPath)) {
+                hnsw.loadFromFile(vecIndexPath);
+                log.info("Rehydrated HNSW Vector Index for {}.{}.{} from disk", name, tableName, vectorCol);
+            }
             vectorIndexes.put(tableName + "." + vectorCol.toLowerCase(), hnsw);
             log.info("Initialized HNSW Vector Index for {}.{}.{} (Dimension={})", name, tableName, vectorCol, dim);
         }
 
         InvertedIndex invIdx = new InvertedIndex();
+        Path invIndexPath = tableDataPath.resolve("inverted_index.json");
+        if (java.nio.file.Files.exists(invIndexPath)) {
+            invIdx.loadFromFile(invIndexPath);
+            log.info("Rehydrated BM25 Inverted Index for {}.{} from disk", name, tableName);
+        }
         invertedIndexes.put(tableName, invIdx);
 
         log.info("Table '{}.{}' created successfully.", name, tableName);
@@ -73,6 +83,29 @@ public class Database {
         String prefix = tableName + ".";
         vectorIndexes.keySet().removeIf(k -> k.startsWith(prefix));
         log.info("Table '{}.{}' dropped.", name, tableName);
+    }
+
+    public synchronized void saveIndexes() {
+        for (Map.Entry<String, HNSWIndex> entry : vectorIndexes.entrySet()) {
+            String key = entry.getKey();
+            String[] parts = key.split("\\.");
+            if (parts.length >= 2) {
+                Path path = dbDataDir.resolve(parts[0]).resolve("vector_" + parts[1] + ".json");
+                try {
+                    entry.getValue().saveToFile(path);
+                } catch (Exception e) {
+                    log.error("Failed to save HNSW index for {}", key, e);
+                }
+            }
+        }
+        for (Map.Entry<String, InvertedIndex> entry : invertedIndexes.entrySet()) {
+            Path path = dbDataDir.resolve(entry.getKey()).resolve("inverted_index.json");
+            try {
+                entry.getValue().saveToFile(path);
+            } catch (Exception e) {
+                log.error("Failed to save Inverted Index for {}", entry.getKey(), e);
+            }
+        }
     }
 
     public Map<String, TableSchema> getSchemas() {
@@ -108,8 +141,10 @@ public class Database {
     }
 
     public void close() {
+        saveIndexes();
         for (LSMTree lsm : lsmTrees.values()) {
             try { lsm.close(); } catch (Exception ignored) {}
         }
     }
 }
+

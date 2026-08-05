@@ -199,4 +199,36 @@ public class AST {
 
         public String getDbName() { return dbName; }
     }
+
+    public static class UpdateStatement implements Statement {
+        private final String tableName;
+        private final Map<String, Object> setAssignments = new LinkedHashMap<>();
+        private final List<Condition> whereConditions = new ArrayList<>();
+
+        public UpdateStatement(String tableName) {
+            this.tableName = tableName.toLowerCase();
+        }
+
+        public UpdateStatement addAssignment(String column, Object value) {
+            setAssignments.put(column, value);
+            return this;
+        }
+
+        public String getTableName() { return tableName; }
+        public Map<String, Object> getSetAssignments() { return setAssignments; }
+        public List<Condition> getWhereConditions() { return whereConditions; }
+    }
+
+    public static class DeleteStatement implements Statement {
+        private final String tableName;
+        private final List<Condition> whereConditions = new ArrayList<>();
+
+        public DeleteStatement(String tableName) {
+            this.tableName = tableName.toLowerCase();
+        }
+
+        public String getTableName() { return tableName; }
+        public List<Condition> getWhereConditions() { return whereConditions; }
+    }
 }
+

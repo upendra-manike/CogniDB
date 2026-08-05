@@ -59,6 +59,37 @@ public class InvertedIndex {
         }
     }
 
+    public synchronized void saveToFile(java.nio.file.Path file) throws java.io.IOException {
+        if (file.getParent() != null) {
+            java.nio.file.Files.createDirectories(file.getParent());
+        }
+        Map<String, Object> data = new HashMap<>();
+        data.put("documentLengths", documentLengths);
+        data.put("termFrequencies", termFrequencies);
+        new com.fasterxml.jackson.databind.ObjectMapper().writeValue(file.toFile(), data);
+    }
+
+    @SuppressWarnings("unchecked")
+    public synchronized void loadFromFile(java.nio.file.Path file) throws java.io.IOException {
+        if (!java.nio.file.Files.exists(file)) return;
+        com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+        Map<String, Object> data = mapper.readValue(file.toFile(), Map.class);
+        Map<String, Integer> lengths = (Map<String, Integer>) data.get("documentLengths");
+        if (lengths != null) documentLengths.putAll(lengths);
+        Map<String, Map<String, Integer>> termFreqs = (Map<String, Map<String, Integer>>) data.get("termFrequencies");
+        if (termFreqs != null) {
+            for (Map.Entry<String, Map<String, Integer>> entry : termFreqs.entrySet()) {
+                String docId = entry.getKey();
+                Map<String, Integer> counts = entry.getValue();
+                termFrequencies.put(docId, counts);
+                for (String token : counts.keySet()) {
+                    index.computeIfAbsent(token, k -> ConcurrentHashMap.newKeySet()).add(docId);
+                }
+            }
+        }
+    }
+
+
     private List<String> tokenize(String text) {
         String[] raw = text.toLowerCase().replaceAll("[^a-z0-9\\s]", "").split("\\s+");
         List<String> tokens = new ArrayList<>();

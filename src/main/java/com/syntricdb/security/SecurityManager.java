@@ -130,8 +130,11 @@ public class SecurityManager {
 
     private String hashPassword(String rawPassword) {
         try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            byte[] hash = digest.digest(rawPassword.getBytes(StandardCharsets.UTF_8));
+            byte[] salt = "SyntricDBSalt_Prod2026".getBytes(StandardCharsets.UTF_8);
+            javax.crypto.SecretKeyFactory skf = javax.crypto.SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256");
+            javax.crypto.spec.PBEKeySpec spec = new javax.crypto.spec.PBEKeySpec(rawPassword.toCharArray(), salt, 10000, 256);
+            byte[] hash = skf.generateSecret(spec).getEncoded();
+
             StringBuilder hexString = new StringBuilder();
             for (byte b : hash) {
                 String hex = Integer.toHexString(0xff & b);
@@ -140,9 +143,65 @@ public class SecurityManager {
             }
             return hexString.toString();
         } catch (Exception e) {
-            throw new RuntimeException("Error hashing password", e);
+            try {
+                MessageDigest digest = MessageDigest.getInstance("SHA-256");
+                byte[] hash = digest.digest(rawPassword.getBytes(StandardCharsets.UTF_8));
+                StringBuilder hexString = new StringBuilder();
+                for (byte b : hash) {
+                    String hex = Integer.toHexString(0xff & b);
+                    if (hex.length() == 1) hexString.append('0');
+                    hexString.append(hex);
+                }
+                return hexString.toString();
+            } catch (Exception ex) {
+                throw new RuntimeException("Error hashing password", ex);
+            }
         }
     }
+
+    public synchronized void saveCatalogToFile(java.nio.file.Path file) throws java.io.IOException {
+        if (file.getParent() != null) {
+            java.nio.file.Files.createDirectories(file.getParent());
+        }
+        Map<String, Object> data = new HashMap<>();
+        Map<String, Map<String, String>> userMap = new HashMap<>();
+        for (Map.Entry<String, UserCredentials> e : users.entrySet()) {
+            Map<String, String> u = new HashMap<>();
+            u.put("hash", e.getValue().getPasswordHash());
+            u.put("role", e.getValue().getRole().name());
+            userMap.put(e.getKey(), u);
+        }
+        data.put("users", userMap);
+        Map<String, String> keys = new HashMap<>();
+        for (Map.Entry<String, Role> e : apiKeys.entrySet()) {
+            keys.put(e.getKey(), e.getValue().name());
+        }
+        data.put("apiKeys", keys);
+        new com.fasterxml.jackson.databind.ObjectMapper().writeValue(file.toFile(), data);
+    }
+
+    @SuppressWarnings("unchecked")
+    public synchronized void loadCatalogFromFile(java.nio.file.Path file) throws java.io.IOException {
+        if (!java.nio.file.Files.exists(file)) return;
+        com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+        Map<String, Object> data = mapper.readValue(file.toFile(), Map.class);
+        Map<String, Map<String, String>> userMap = (Map<String, Map<String, String>>) data.get("users");
+        if (userMap != null) {
+            for (Map.Entry<String, Map<String, String>> e : userMap.entrySet()) {
+                String name = e.getKey();
+                String hash = e.getValue().get("hash");
+                Role role = Role.valueOf(e.getValue().get("role"));
+                users.put(name, new UserCredentials(name, hash, role));
+            }
+        }
+        Map<String, String> keys = (Map<String, String>) data.get("apiKeys");
+        if (keys != null) {
+            for (Map.Entry<String, String> e : keys.entrySet()) {
+                apiKeys.put(e.getKey(), Role.valueOf(e.getValue()));
+            }
+        }
+    }
+
 
     // --- 3. FIREWALL & RATE LIMITING ---
     public boolean checkRateLimit(String clientIp, int maxRequestsPerSec) {

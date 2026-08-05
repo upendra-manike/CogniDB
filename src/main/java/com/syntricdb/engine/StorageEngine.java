@@ -176,6 +176,82 @@ public class StorageEngine implements AutoCloseable {
         streamEngine.publish("table_" + db.getName() + "_" + tableName, streamEvent);
     }
 
+    public int update(String dbName, String tableName, Map<String, Object> setAssignments, List<com.syntricdb.sql.AST.Condition> conditions) throws IOException {
+        Database db = getDatabase(dbName);
+        if (db == null) return 0;
+        tableName = tableName.toLowerCase();
+        TableSchema schema = db.getSchema(tableName);
+        if (schema == null) return 0;
+
+        List<Tuple> matches = scanAll(dbName, tableName);
+        int count = 0;
+        for (Tuple existing : matches) {
+            if (matchesConditions(existing, conditions)) {
+                for (Map.Entry<String, Object> entry : setAssignments.entrySet()) {
+                    existing.set(entry.getKey(), entry.getValue());
+                }
+                insert(dbName, tableName, existing);
+                count++;
+            }
+        }
+        return count;
+    }
+
+    public int delete(String dbName, String tableName, List<com.syntricdb.sql.AST.Condition> conditions) throws IOException {
+        Database db = getDatabase(dbName);
+        if (db == null) return 0;
+        tableName = tableName.toLowerCase();
+        TableSchema schema = db.getSchema(tableName);
+        if (schema == null) return 0;
+
+        String pkCol = schema.getPrimaryKeyColumn();
+        List<Tuple> matches = scanAll(dbName, tableName);
+        int count = 0;
+        Map<String, Tuple> store = db.getInMemoryTableStore().get(tableName);
+        InvertedIndex invIdx = db.getInvertedIndexes().get(tableName);
+        String vectorCol = schema.getVectorColumn();
+
+        for (Tuple existing : matches) {
+            if (matchesConditions(existing, conditions)) {
+                String pkVal = existing.get(pkCol) != null ? existing.get(pkCol).toString() : null;
+                if (pkVal != null) {
+                    if (store != null) store.remove(pkVal);
+                    if (invIdx != null) invIdx.removeDocument(pkVal);
+                    if (vectorCol != null) {
+                        HNSWIndex hnsw = db.getVectorIndex(tableName, vectorCol);
+                        if (hnsw != null) hnsw.remove(pkVal);
+                    }
+                    cacheEngine.invalidate(db.getName() + ":" + tableName + ":" + pkVal);
+                    writeOpsCount.incrementAndGet();
+                    count++;
+                }
+            }
+        }
+        return count;
+    }
+
+    private boolean matchesConditions(Tuple tuple, List<com.syntricdb.sql.AST.Condition> conditions) {
+        if (conditions == null || conditions.isEmpty()) return true;
+        for (com.syntricdb.sql.AST.Condition cond : conditions) {
+            Object val = tuple.get(cond.getColumn());
+            if (val == null) return false;
+            String op = cond.getOperator();
+            Object target = cond.getValue();
+            if ("=".equals(op) && !val.toString().equals(target.toString())) return false;
+            if ("!=".equals(op) && !val.toString().equals(target.toString())) return false;
+            if (val instanceof Number && target instanceof Number) {
+                double v = ((Number) val).doubleValue();
+                double t = ((Number) target).doubleValue();
+                if (">".equals(op) && v <= t) return false;
+                if ("<".equals(op) && v >= t) return false;
+                if (">=".equals(op) && v < t) return false;
+                if ("<=".equals(op) && v > t) return false;
+            }
+        }
+        return true;
+    }
+
+
     public Tuple getByPrimaryKey(String tableName, String primaryKey) throws IOException {
         return getByPrimaryKey(DEFAULT_DB, tableName, primaryKey);
     }
